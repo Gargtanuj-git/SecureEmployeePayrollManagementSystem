@@ -117,9 +117,11 @@
             <label for="status">Status</label>
             <select id="status" name="status" class="form-control filter-select">
                 <option value="">All Statuses</option>
+                <option value="Generated" selected="@(ViewBag.Status == "Generated" ? "selected" : null)">Generated</option>
                 <option value="Processed" selected="@(ViewBag.Status == "Processed" ? "selected" : null)">Processed</option>
                 <option value="Paid" selected="@(ViewBag.Status == "Paid" ? "selected" : null)">Paid</option>
-                <option value="Pending" selected="@(ViewBag.Status == "Pending" ? "selected" : null)">Pending</option>
+                <option value="Draft" selected="@(ViewBag.Status == "Draft" ? "selected" : null)">Draft</option>
+                <option value="Cancelled" selected="@(ViewBag.Status == "Cancelled" ? "selected" : null)">Cancelled</option>
             </select>
         </div>
 
@@ -166,9 +168,9 @@
                                 {
                                     <span class="status-badge status-success">Paid</span>
                                 }
-                                else if (p.PayrollStatus == "Processed")
+                                else if (p.PayrollStatus == "Generated" || p.PayrollStatus == "Processed")
                                 {
-                                    <span class="status-badge status-info">Processed</span>
+                                    <span class="status-badge status-info">Generated</span>
                                 }
                                 else
                                 {

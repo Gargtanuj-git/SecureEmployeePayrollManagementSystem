@@ -43,21 +43,26 @@ public class PaymentsController : Controller
             page,
             15);
 
-        // Fetch pending/processed payroll items that can be paid
+        // Fetch pending/processed payroll items that can be paid (one representative item per payroll slip)
         var unpaidPayrollItems = await _context.PayrollItems
             .Include(pi => pi.Payroll)
                 .ThenInclude(p => p.Employee)
-            .Where(pi => pi.ItemType == "Earning")
+            .Where(pi => pi.ItemType == "Earning" && pi.Payroll != null && pi.Payroll.Employee != null)
             .OrderByDescending(pi => pi.Payroll.PayPeriodEnd)
-            .Take(30)
+            .ThenByDescending(pi => pi.PayrollId)
             .ToListAsync();
+
+        var distinctSlipItems = unpaidPayrollItems
+            .GroupBy(pi => pi.PayrollId)
+            .Select(g => g.First())
+            .ToList();
 
         ViewBag.Method = method;
         ViewBag.Status = status;
         ViewBag.Page = page;
         ViewBag.TotalCount = totalCount;
         ViewBag.TotalPages = (int)Math.Ceiling((double)totalCount / 15);
-        ViewBag.PayrollItems = unpaidPayrollItems;
+        ViewBag.PayrollItems = distinctSlipItems;
 
         return View(items);
     }

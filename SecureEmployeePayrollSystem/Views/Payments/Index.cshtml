@@ -47,7 +47,7 @@
                     @foreach (var pi in payrollItems)
                     {
                         <option value="@pi.PayrollItemId">
-                            Slip #@pi.PayrollId: @pi.Payroll.Employee?.FirstName @pi.Payroll.Employee?.LastName (@pi.Payroll.PayPeriodStart:MMM yyyy)
+                            Slip #@pi.PayrollId: @pi.Payroll.Employee?.FirstName @pi.Payroll.Employee?.LastName (@pi.Payroll.PayPeriodStart.ToString("MMM yyyy")) - Net: ₹@((pi.Payroll.NetSalary ?? 0m).ToString("N2"))
                         </option>
                     }
                 </select>

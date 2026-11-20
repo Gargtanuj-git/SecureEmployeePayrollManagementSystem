@@ -182,6 +182,88 @@ public class EmployeeService
             _context.Employees.Add(employee);
             await _context.SaveChangesAsync();
 
+            // Automatically initialize baseline Payroll slip and Earning item so employee is immediately available across payroll & disbursements
+            try
+            {
+                var salaryStructure = await _context.SalaryStructures
+                    .Include(s => s.SalaryComponents)
+                    .FirstOrDefaultAsync(s => s.SalaryStructureId == employee.SalaryStructureId);
+
+                if (salaryStructure != null)
+                {
+                    var hire = employee.HireDate;
+                    var periodStart = new DateOnly(hire.Year, hire.Month, 1);
+                    var periodEnd = new DateOnly(hire.Year, hire.Month, DateTime.DaysInMonth(hire.Year, hire.Month));
+
+                    decimal basic = salaryStructure.BasicSalary;
+                    decimal earningsTotal = basic;
+                    decimal deductionsTotal = 0;
+
+                    var itemsToCreate = new List<PayrollItem>
+                    {
+                        new PayrollItem
+                        {
+                            Quantity = 1.00m,
+                            CalculationBasis = basic,
+                            ItemType = "Earning"
+                        }
+                    };
+
+                    foreach (var comp in salaryStructure.SalaryComponents)
+                    {
+                        decimal amount = 0;
+                        if (comp.CalculationType == "Percentage" && comp.Percentage.HasValue)
+                        {
+                            amount = Math.Round(basic * (comp.Percentage.Value / 100m), 2, MidpointRounding.AwayFromZero);
+                        }
+                        else if (comp.CalculationType == "Fixed" && comp.FixedAmount.HasValue)
+                        {
+                            amount = comp.FixedAmount.Value;
+                        }
+
+                        if (comp.ComponentType == "Earning")
+                        {
+                            earningsTotal += amount;
+                            itemsToCreate.Add(new PayrollItem
+                            {
+                                Quantity = 1.00m,
+                                CalculationBasis = amount,
+                                ItemType = "Earning"
+                            });
+                        }
+                        else if (comp.ComponentType == "Deduction")
+                        {
+                            deductionsTotal += amount;
+                            itemsToCreate.Add(new PayrollItem
+                            {
+                                Quantity = 1.00m,
+                                CalculationBasis = amount,
+                                ItemType = "Deduction"
+                            });
+                        }
+                    }
+
+                    var initialPayroll = new Payroll
+                    {
+                        EmployeeId = employee.EmployeeId,
+                        PayPeriodStart = periodStart,
+                        PayPeriodEnd = periodEnd,
+                        GrossSalary = earningsTotal,
+                        TotalDeductions = deductionsTotal,
+                        GeneratedDate = DateOnly.FromDateTime(DateTime.Now),
+                        PayrollStatus = "Generated",
+                        PayrollItems = itemsToCreate
+                    };
+
+                    _context.Payrolls.Add(initialPayroll);
+                    await _context.SaveChangesAsync();
+                }
+            }
+            catch (Exception pEx)
+            {
+                _logger.LogWarning(pEx, "Initial payroll slip generation skipped for new employee {EmpId}", employee.EmployeeId);
+            }
+
             if (_integrity != null && currentUserId > 0)
             {
                 var targetLevel = string.Equals(employee.EmploymentStatus, "Active", StringComparison.OrdinalIgnoreCase)

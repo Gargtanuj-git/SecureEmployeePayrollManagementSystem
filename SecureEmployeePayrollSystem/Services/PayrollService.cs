@@ -226,7 +226,7 @@ public class PayrollService
                     PayPeriodEnd = periodEnd,
                     GrossSalary = earningsTotal,
                     TotalDeductions = deductionsTotal,
-                    PayrollStatus = "Processed",
+                    PayrollStatus = "Generated",
                     GeneratedDate = today
                 };
 
