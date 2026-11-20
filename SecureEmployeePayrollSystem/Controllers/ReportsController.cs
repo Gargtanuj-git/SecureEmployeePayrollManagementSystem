@@ -142,6 +142,8 @@ public class ReportsController : Controller
     // EXPORT PAYROLL CSV
     // ============================================================
     [HttpGet]
+    [Route("Reports/ExportPayroll")]
+    [Route("Reports/ExportPayrollCsv")]
     public async Task<IActionResult> ExportPayroll(string? startStr, string? endStr, string? status)
     {
         DateOnly? start = DateOnly.TryParse(startStr, out var s) ? s : null;

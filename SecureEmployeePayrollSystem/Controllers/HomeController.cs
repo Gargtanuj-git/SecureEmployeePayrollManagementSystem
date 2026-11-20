@@ -47,6 +47,9 @@ public class HomeController : Controller
 
     [HttpGet]
     [AllowAnonymous]
+    [Route("Home/Public")]
+    [Route("Home/PublicHome")]
+    [Route("PublicHome")]
     public async Task<IActionResult> Public()
     {
         var featuredFeedback = await _feedbackService.GetFeaturedFeedbackAsync();

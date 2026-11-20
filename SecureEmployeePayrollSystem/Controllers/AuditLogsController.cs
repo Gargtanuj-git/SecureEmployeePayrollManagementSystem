@@ -60,6 +60,18 @@ public class AuditLogsController : Controller
         ViewBag.TotalPages = (int)Math.Ceiling((double)totalCount / 20);
         ViewBag.Users = users;
 
-        return View(items);
+        return View("Index", items);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Integrity(int page = 1)
+    {
+        return await Index(null, "INTEGRITY_SECURITY_AUDIT", null, null, null, page);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ClarkWilson(int page = 1)
+    {
+        return await Index(null, "CLARK_WILSON_AUDIT", null, null, null, page);
     }
 }
