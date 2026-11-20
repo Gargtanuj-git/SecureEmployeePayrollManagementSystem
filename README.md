@@ -20,7 +20,7 @@ Enterprise-grade, secure, multi-tier Employee and Payroll Management System buil
 
 | Username | Role | Password | Description & Permissions |
 | :--- | :--- | :--- | :--- |
-| `aarav.mehta` | **Admin** | `Admin@123` | System oversight, user accounts, roles & privileges, audit trail, security classifications, system configuration. *(Requires MFA)* |
+| `tanuj.garg` | **Admin** | `Admin@123` | System oversight, user accounts, roles & privileges, audit trail, security classifications, system configuration. *(Requires MFA)* |
 | `riya.sharma` | **HR Manager** | `Hr@123` | Employee lifecycle management, department & designation directories, leave approval queue, attendance monitoring. |
 | `vikram.singh` | **Payroll Manager** | `Payroll@123` | Compensation grading, monthly payroll processing runs, salary disbursement, payslip generation. |
 | `kabir.verma` | **Employee** | `Emp@123` | Self-service portal: personal profile view, attendance clock in/out, leave application, payslip review. |

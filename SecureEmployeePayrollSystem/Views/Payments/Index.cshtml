@@ -66,10 +66,9 @@
             <div class="form-group">
                 <label for="method">Method *</label>
                 <select name="method" id="method" class="form-control">
-                    <option value="Direct Deposit">Direct Deposit (NEFT/RTGS)</option>
-                    <option value="Bank Transfer">Bank Transfer (IMPS)</option>
-                    <option value="Company Cheque">Company Cheque</option>
-                    <option value="UPI">UPI Corporate</option>
+                    <option value="Bank Transfer">Bank Transfer (NEFT/RTGS/IMPS)</option>
+                    <option value="Cheque">Company Cheque</option>
+                    <option value="Cash">Cash Disbursement</option>
                 </select>
             </div>
 
@@ -82,8 +81,8 @@
                 <label for="status">Payment Status *</label>
                 <select name="status" id="status" class="form-control">
                     <option value="Completed">Completed</option>
-                    <option value="Processing">Processing</option>
                     <option value="Pending">Pending</option>
+                    <option value="Failed">Failed</option>
                 </select>
             </div>
 
@@ -109,10 +108,9 @@
             <label for="methodFilter">Payment Method</label>
             <select id="methodFilter" name="method" class="form-control filter-select">
                 <option value="">All Methods</option>
-                <option value="Direct Deposit" selected="@(ViewBag.Method == "Direct Deposit" ? "selected" : null)">Direct Deposit</option>
                 <option value="Bank Transfer" selected="@(ViewBag.Method == "Bank Transfer" ? "selected" : null)">Bank Transfer</option>
-                <option value="Company Cheque" selected="@(ViewBag.Method == "Company Cheque" ? "selected" : null)">Company Cheque</option>
-                <option value="UPI" selected="@(ViewBag.Method == "UPI" ? "selected" : null)">UPI</option>
+                <option value="Cheque" selected="@(ViewBag.Method == "Cheque" ? "selected" : null)">Cheque</option>
+                <option value="Cash" selected="@(ViewBag.Method == "Cash" ? "selected" : null)">Cash</option>
             </select>
         </div>
 
@@ -121,8 +119,8 @@
             <select id="statusFilter" name="status" class="form-control filter-select">
                 <option value="">All Statuses</option>
                 <option value="Completed" selected="@(ViewBag.Status == "Completed" ? "selected" : null)">Completed</option>
-                <option value="Processing" selected="@(ViewBag.Status == "Processing" ? "selected" : null)">Processing</option>
                 <option value="Pending" selected="@(ViewBag.Status == "Pending" ? "selected" : null)">Pending</option>
+                <option value="Failed" selected="@(ViewBag.Status == "Failed" ? "selected" : null)">Failed</option>
             </select>
         </div>
 

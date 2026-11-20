@@ -86,13 +86,11 @@ public class PaymentService
 
             if (_integrity != null && currentUserId > 0)
             {
-                var targetLevel = string.Equals(status, "Completed", StringComparison.OrdinalIgnoreCase) ||
-                                 string.Equals(status, "Approved", StringComparison.OrdinalIgnoreCase)
-                    ? IntegrityLevel.HighlyTrusted
-                    : IntegrityLevel.Trusted;
-
                 var subjectLevel = await _integrity.GetUserIntegrityLevelAsync(currentUserId);
-                if (subjectLevel < targetLevel)
+                
+                // Disbursing payments requires at least Trusted level (Payroll Manager or Admin)
+                // Untrusted or SlightlyTrusted employees cannot record payment disbursement vouchers (No Write Up: S >= O)
+                if (subjectLevel < IntegrityLevel.Trusted)
                 {
                     await _integrity.RecordAuditAsync(
                         currentUserId,
@@ -100,12 +98,12 @@ public class PaymentService
                         "Payment",
                         0,
                         subjectLevel,
-                        targetLevel,
+                        IntegrityLevel.Trusted,
                         "DENIED",
-                        $"Biba No Write Up: Subject level {subjectLevel} cannot issue or record a {targetLevel} payment.",
+                        $"Biba No Write Up: Subject level {subjectLevel} cannot issue or record payment disbursement vouchers.",
                         ipAddress);
 
-                    return (false, $"Biba Integrity Violation: Lower-integrity subject cannot issue {targetLevel} payments.", 0);
+                    return (false, "Biba Integrity Violation: Only Trusted financial officers (Payroll Managers & Admins) can disburse payments.", 0);
                 }
             }
 
@@ -124,8 +122,8 @@ public class PaymentService
 
             if (_integrity != null && currentUserId > 0)
             {
-                var targetLevel = string.Equals(status, "Completed", StringComparison.OrdinalIgnoreCase) ||
-                                 string.Equals(status, "Approved", StringComparison.OrdinalIgnoreCase)
+                var subjectLevel = await _integrity.GetUserIntegrityLevelAsync(currentUserId);
+                var targetLevel = (subjectLevel == IntegrityLevel.HighlyTrusted || string.Equals(status, "Approved", StringComparison.OrdinalIgnoreCase))
                     ? IntegrityLevel.HighlyTrusted
                     : IntegrityLevel.Trusted;
 

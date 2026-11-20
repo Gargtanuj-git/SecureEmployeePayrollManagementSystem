@@ -232,21 +232,60 @@ public class IntegrityAssignmentService : IIntegrityAssignmentService
         var subjectLevel = await GetUserIntegrityLevelAsync(userId);
         var objectLevel = await GetObjectIntegrityLevelAsync(entityType, entityId);
 
-        var eval = _policy.EvaluateRead(subjectLevel, objectLevel);
-        string decision = eval.IsAllowed ? "ALLOWED" : "DENIED";
+        // Core Biba integrity axiom: Reading genuinely Untrusted data is strictly prohibited
+        if (objectLevel == IntegrityLevel.Untrusted)
+        {
+            var eval = _policy.EvaluateRead(subjectLevel, objectLevel);
+            await RecordAuditAsync(
+                userId,
+                "BIBA_READ_DENIED",
+                entityType,
+                entityId,
+                subjectLevel,
+                objectLevel,
+                "DENIED",
+                eval.Reason,
+                ipAddress);
+
+            return (false, eval.Reason ?? string.Empty, subjectLevel, objectLevel);
+        }
+
+        // Administrative & Supervisory Audit Oversight:
+        // HighlyTrusted Administrators and Trusted Managers have authorized supervisory audit
+        // and inspection visibility over valid corporate records (objectLevel >= SlightlyTrusted).
+        if (subjectLevel >= IntegrityLevel.Trusted && objectLevel >= IntegrityLevel.SlightlyTrusted)
+        {
+            string allowReason = $"Biba Read Allowed (Supervisory Audit): Subject {subjectLevel} has legitimate supervisory inspection access to {entityType} #{entityId} ({objectLevel}).";
+            await RecordAuditAsync(
+                userId,
+                "BIBA_READ_ALLOWED",
+                entityType,
+                entityId,
+                subjectLevel,
+                objectLevel,
+                "ALLOWED",
+                allowReason,
+                ipAddress);
+
+            return (true, allowReason, subjectLevel, objectLevel);
+        }
+
+        // Standard axiomatic Biba read evaluation for other subjects
+        var standardEval = _policy.EvaluateRead(subjectLevel, objectLevel);
+        string decision = standardEval.IsAllowed ? "ALLOWED" : "DENIED";
 
         await RecordAuditAsync(
             userId,
-            eval.IsAllowed ? "BIBA_READ_ALLOWED" : "BIBA_READ_DENIED",
+            standardEval.IsAllowed ? "BIBA_READ_ALLOWED" : "BIBA_READ_DENIED",
             entityType,
             entityId,
             subjectLevel,
             objectLevel,
             decision,
-            eval.Reason,
+            standardEval.Reason,
             ipAddress);
 
-        return (eval.IsAllowed, eval.Reason ?? string.Empty, subjectLevel, objectLevel);
+        return (standardEval.IsAllowed, standardEval.Reason ?? string.Empty, subjectLevel, objectLevel);
     }
 
     /// <inheritdoc />
@@ -540,7 +579,7 @@ public class IntegrityAssignmentService : IIntegrityAssignmentService
             if (userId <= 0)
             {
                 // Unauthenticated or unknown identity fails closed and does not violate FK
-                var adminUser = await _context.UserAccounts.AsNoTracking().FirstOrDefaultAsync(u => u.Username == "aarav.mehta");
+                var adminUser = await _context.UserAccounts.AsNoTracking().FirstOrDefaultAsync(u => u.Username == "tanuj.garg" || u.Username == "aarav.mehta");
                 if (adminUser != null)
                 {
                     userId = adminUser.UserId;

@@ -121,9 +121,11 @@
                         var currentUsername =
                             User.Identity?.Name ?? "User";
 
+                        var displayName =
+                            User.FindFirst("FullName")?.Value ?? currentUsername;
+
                         var avatarLetter =
-                            currentUsername
-                                .Substring(0, 1)
+                            (displayName.Length > 0 ? displayName.Substring(0, 1) : "U")
                                 .ToUpper();
                     }
 
@@ -135,7 +137,7 @@
                 <span class="header-user-details">
 
                     <strong>
-                        @currentUsername
+                        @displayName
                     </strong>
 
                     <small>
@@ -183,8 +185,9 @@
                     <div>
 
                         <strong>
-                            @currentUsername
+                            @displayName
                         </strong>
+                        <div style="font-size: 11px; color: var(--text-muted);">@currentUsername</div>
 
                         <span>
                             @(currentRoles.Any()

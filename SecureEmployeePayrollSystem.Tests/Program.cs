@@ -209,10 +209,10 @@ public class Program
 
         Console.WriteLine("\n--- EXECUTING PHASE 5 BRUTE-FORCE & INPUT VALIDATION TESTS ---");
 
-        const string testUsername = "test.user.879031";
+        const string testUsername = "pinky.sharma";
         const string testPassword = "TestLockout@123";
 
-        // Reset and prepare test user 7
+        // Reset and prepare test user (pinky.sharma)
         var hasher = new PasswordHasher<UserAccount>();
         var targetUser = await context.UserAccounts.FirstAsync(u => u.Username == testUsername);
         targetUser.PasswordHash = hasher.HashPassword(targetUser, testPassword);
@@ -900,7 +900,7 @@ public class Program
         // GROUP C: RESOLUTION, BASELINE MAPPINGS & FAIL-CLOSED (Tests 40 - 43)
         // --------------------------------------------------------
         // Test 40: Subject Integrity Level Resolution & Fail-Closed
-        var adminUser = await context.UserAccounts.FirstOrDefaultAsync(u => u.Username == "aarav.mehta");
+        var adminUser = await context.UserAccounts.FirstOrDefaultAsync(u => u.Username == "tanuj.garg" || u.Username == "aarav.mehta");
         var hrUser = await context.UserAccounts.FirstOrDefaultAsync(u => u.Username == "riya.sharma");
         var payrollUser = await context.UserAccounts.FirstOrDefaultAsync(u => u.Username == "vikram.singh");
         var empUser = await context.UserAccounts.FirstOrDefaultAsync(u => u.Username == "kabir.verma");

@@ -291,8 +291,7 @@ public class PayrollService
                     return (false, $"Biba Integrity Violation: {reason}");
                 }
 
-                bool isFinalizing = string.Equals(newStatus, "Paid", StringComparison.OrdinalIgnoreCase) ||
-                                   string.Equals(newStatus, "Approved", StringComparison.OrdinalIgnoreCase) ||
+                bool isFinalizing = string.Equals(newStatus, "Approved", StringComparison.OrdinalIgnoreCase) ||
                                    string.Equals(newStatus, "Finalized", StringComparison.OrdinalIgnoreCase);
 
                 if (isFinalizing && subjectLevel < IntegrityLevel.HighlyTrusted)

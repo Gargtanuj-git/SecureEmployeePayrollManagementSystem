@@ -123,7 +123,7 @@ GO
 -- ============================================================================
 
 -- Seed User Integrity Classifications from Existing Roles
-DECLARE @AdminId INT = (SELECT TOP 1 User_ID FROM dbo.USER_ACCOUNT WHERE Username = 'aarav.mehta');
+DECLARE @AdminId INT = (SELECT TOP 1 User_ID FROM dbo.USER_ACCOUNT WHERE Username IN ('tanuj.garg', 'aarav.mehta'));
 IF @AdminId IS NULL SET @AdminId = 1;
 
 -- Seed Admin as HighlyTrusted (4)
