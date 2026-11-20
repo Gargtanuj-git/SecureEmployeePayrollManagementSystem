@@ -1,0 +1,122 @@
+@model SecureEmployeePayrollSystem.Models.Designation
+
+@{
+    ViewData["Title"] = $"{Model.DesignationName} - Details";
+    bool canManage = User.IsInRole("Admin") || User.IsInRole("HR Manager");
+}
+
+<div class="page-header">
+    <div>
+        <h1>@Model.DesignationName</h1>
+        <p>Job Level: @Model.JobLevel | ID: #@Model.DesignationId</p>
+    </div>
+    <div class="page-header-actions" style="display: flex; gap: 8px;">
+        <a asp-controller="Designations" asp-action="Index" class="btn btn-secondary">
+            &larr; All Designations
+        </a>
+        @if (canManage)
+        {
+            <a asp-controller="Designations" asp-action="Edit" asp-route-id="@Model.DesignationId" class="btn btn-primary">
+                Edit Designation
+            </a>
+        }
+    </div>
+</div>
+
+<div class="content-card" style="margin-bottom: 24px;">
+    <div class="card-header">
+        <div>
+            <h2>Role Specifications</h2>
+            <p>Job Hierarchy & Details</p>
+        </div>
+        <div>
+            <span class="status-badge status-neutral">@Model.JobLevel</span>
+        </div>
+    </div>
+    <div style="padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div>
+            <div style="font-size: 12px; color: var(--seps-text-secondary);">Designation Title</div>
+            <div style="font-size: 16px; font-weight: 500;">@Model.DesignationName</div>
+        </div>
+        <div>
+            <div style="font-size: 12px; color: var(--seps-text-secondary);">Hierarchy Level</div>
+            <div style="font-size: 16px; font-weight: 500;">@Model.JobLevel</div>
+        </div>
+        <div style="grid-column: span 2;">
+            <div style="font-size: 12px; color: var(--seps-text-secondary);">Description</div>
+            <div style="font-size: 14px; margin-top: 4px; color: var(--seps-text);">
+                @(string.IsNullOrWhiteSpace(Model.Description) ? "No detailed description provided." : Model.Description)
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="content-card">
+    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h2>Employees in this Role</h2>
+            <p>@((Model.Employees?.Count ?? 0)) employee(s) assigned this designation</p>
+        </div>
+        @if (canManage)
+        {
+            <a asp-controller="Employees" asp-action="Create" class="btn btn-secondary btn-sm">
+                + Add Employee
+            </a>
+        }
+    </div>
+
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Department</th>
+                    <th>Status</th>
+                    <th style="text-align: right;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Employees != null && Model.Employees.Any())
+                {
+                    foreach (var emp in Model.Employees)
+                    {
+                        <tr>
+                            <td><strong>#@emp.EmployeeId</strong></td>
+                            <td>@emp.FirstName @emp.LastName</td>
+                            <td>@emp.Email</td>
+                            <td>@(emp.Department?.DepartmentName ?? "N/A")</td>
+                            <td>
+                                @if (emp.EmploymentStatus == "Active")
+                                {
+                                    <span class="status-badge status-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge status-neutral">@emp.EmploymentStatus</span>
+                                }
+                            </td>
+                            <td style="text-align: right;">
+                                <a asp-controller="Employees" asp-action="Details" asp-route-id="@emp.EmployeeId" class="btn btn-secondary btn-sm">
+                                    Profile
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6">
+                            <div class="empty-state">
+                                <h3>No employees assigned</h3>
+                                <p>There are currently no staff members holding this designation.</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,225 @@
+<aside id="appSidebar" class="app-sidebar">
+
+    <!-- =========================================================
+         SIDEBAR BRAND
+         ========================================================= -->
+    <div class="sidebar-brand">
+        <a asp-controller="Home" asp-action="Index" class="sidebar-brand-link" title="Secure Employee Payroll Management System">
+            <div class="sidebar-brand-logo-wrapper">
+                <img src="~/images/seps-logo.png" alt="Secure Employee Payroll Management System" class="sidebar-logo-full" />
+                <img src="~/images/seps-symbol.png" alt="SEPS" class="sidebar-logo-symbol" />
+            </div>
+        </a>
+
+        <!-- MOBILE CLOSE BUTTON -->
+        <button type="button" id="closeSidebar" class="mobile-close-button" aria-label="Close navigation">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M18.3 5.7a1 1 0 0 0-1.4 0L12 10.6 7.1 5.7A1 1 0 0 0 5.7 7.1l4.9 4.9-4.9 4.9a1 1 0 1 0 1.4 1.4l4.9-4.9 4.9 4.9a1 1 0 0 0 1.4-1.4L13.4 12l4.9-4.9a1 1 0 0 0 0-1.4z" />
+            </svg>
+        </button>
+    </div>
+
+    <!-- =========================================================
+         NAVIGATION
+         ========================================================= -->
+    <nav class="sidebar-navigation" aria-label="Main navigation">
+
+        <!-- DASHBOARD -->
+        <div class="nav-section">
+            <a asp-controller="Home" asp-action="Index" class="nav-item">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8v-10h-8v10zm0-18v6h8V3h-8z" />
+                    </svg>
+                </span>
+                <span class="nav-text">Dashboard</span>
+            </a>
+        </div>
+
+        <!-- ORGANIZATION -->
+        <div class="nav-group">
+            <div class="nav-group-title">ORGANIZATION</div>
+
+            <!-- EMPLOYEES -->
+            <a asp-controller="Employees" asp-action="Index" class="nav-item">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zM8 11c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13zm8 0c-.29 0-.62.02-.97.05 1.18.85 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
+                    </svg>
+                </span>
+                <span class="nav-text">Employees</span>
+            </a>
+
+            @if (User.IsInRole("Admin") || User.IsInRole("HR Manager"))
+            {
+                <!-- DEPARTMENTS -->
+                <a asp-controller="Departments" asp-action="Index" class="nav-item">
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M4 10h16v10H4V10zm2-6h12v4H6V4zm-4 6h20v2H2v-2zm4 4h3v4H6v-4zm5 0h3v4h-3v-4zm5 0h2v4h-2v-4z" />
+                        </svg>
+                    </span>
+                    <span class="nav-text">Departments</span>
+                </a>
+
+                <!-- DESIGNATIONS -->
+                <a asp-controller="Designations" asp-action="Index" class="nav-item">
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M12 2 4 5v6c0 5.25 3.42 10.15 8 11 4.58-.85 8-5.75 8-11V5l-8-3zm0 4 4 1.5V11c0 3.54-2.16 7.08-4 7.91C10.16 18.08 8 14.54 8 11V7.5L12 6z" />
+                        </svg>
+                    </span>
+                    <span class="nav-text">Designations</span>
+                </a>
+            }
+        </div>
+
+        <!-- TIME & LEAVE -->
+        <div class="nav-group">
+            <div class="nav-group-title">TIME &amp; LEAVE</div>
+
+            <!-- ATTENDANCE -->
+            <a asp-controller="Attendance" asp-action="Index" class="nav-item">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M11 7h2v5.17l3.24 1.92-1 1.66L11 13.3V7zm1-5a10 10 0 1 0 10 10A10.01 10.01 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z" />
+                    </svg>
+                </span>
+                <span class="nav-text">Attendance</span>
+            </a>
+
+            <!-- LEAVE -->
+            <a asp-controller="Leave" asp-action="Index" class="nav-item">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M19 4h-1V2h-2v2H8V2H6v2H5a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3zm1 15a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-7h16v7zm0-9H4V7a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v3z" />
+                    </svg>
+                </span>
+                <span class="nav-text">Leave Management</span>
+            </a>
+        </div>
+
+        <!-- PAYROLL -->
+        <div class="nav-group">
+            <div class="nav-group-title">PAYROLL &amp; COMPENSATION</div>
+
+            @if (User.IsInRole("Admin") || User.IsInRole("Payroll Manager"))
+            {
+                <!-- SALARY STRUCTURE -->
+                <a asp-controller="SalaryStructure" asp-action="Index" class="nav-item">
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M4 5h16v14H4V5zm2 2v10h12V7H6zm2 2h8v2H8V9zm0 4h5v2H8v-2z" />
+                        </svg>
+                    </span>
+                    <span class="nav-text">Salary Structure</span>
+                </a>
+            }
+
+            <!-- PAYROLL RUNS / PAYSLIPS -->
+            <a asp-controller="Payroll" asp-action="Index" class="nav-item">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M19 4h-1V2h-2v2H8V2H6v2H5a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3zm1 15a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V9h16v10zM6 11h5v2H6v-2zm0 4h8v2H6v-2z" />
+                    </svg>
+                </span>
+                <span class="nav-text">
+                    @(User.IsInRole("Admin") || User.IsInRole("Payroll Manager") ? "Payroll Processing" : "My Payslips")
+                </span>
+            </a>
+
+            @if (User.IsInRole("Admin") || User.IsInRole("Payroll Manager"))
+            {
+                <!-- PAYMENTS -->
+                <a asp-controller="Payments" asp-action="Index" class="nav-item">
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M4 4h16v16H4V4zm2 2v12h12V6H6zm2 2h8v2H8V8zm0 4h5v2H8v-2z" />
+                        </svg>
+                    </span>
+                    <span class="nav-text">Disbursements</span>
+                </a>
+            }
+        </div>
+
+        @if (User.IsInRole("Admin") || User.IsInRole("HR Manager") || User.IsInRole("Payroll Manager"))
+        {
+            <!-- REPORTS -->
+            <div class="nav-group">
+                <div class="nav-group-title">ANALYTICS</div>
+                <a asp-controller="Reports" asp-action="Index" class="nav-item">
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+                        </svg>
+                    </span>
+                    <span class="nav-text">Reports &amp; Exports</span>
+                </a>
+            </div>
+        }
+
+        <!-- SECURITY (ADMIN ONLY) -->
+        @if (User.IsInRole("Admin"))
+        {
+            <div class="nav-group">
+                <div class="nav-group-title">SECURITY &amp; ACCESS</div>
+
+                <!-- USERS -->
+                <a asp-controller="UserManagement" asp-action="Index" class="nav-item">
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-3.33 0-10 1.67-10 5v3h20v-3c0-3.33-6.67-5-10-5z" />
+                        </svg>
+                    </span>
+                    <span class="nav-text">User Accounts</span>
+                </a>
+
+                <!-- ROLES & PERMISSIONS -->
+                <a asp-controller="Roles" asp-action="Index" class="nav-item">
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M12 2 3 6v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V6l-9-4zm0 4.18 6 2.67V12c0 3.87-2.5 7.83-6 9.06C8.5 19.83 6 15.87 6 12V8.85l6-2.67z" />
+                        </svg>
+                    </span>
+                    <span class="nav-text">Roles &amp; Privileges</span>
+                </a>
+
+                <!-- AUDIT LOGS -->
+                <a asp-controller="AuditLogs" asp-action="Index" class="nav-item">
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M3 13h2v-2H3v2zm0 6h2v-2H3v2zm0-12h2V5H3v2zm4 6h14v-2H7v2zm0 6h14v-2H7v2zm0-12v2h14V5H7v2z" />
+                        </svg>
+                    </span>
+                    <span class="nav-text">Audit Trail</span>
+                </a>
+            </div>
+        }
+
+        <!-- SYSTEM -->
+        <div class="nav-group">
+            <div class="nav-group-title">SYSTEM</div>
+            <a asp-controller="Settings" asp-action="Index" class="nav-item">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M19.43 12.98c.04-.32.07-.65.07-.98s-.02-.66-.07-.98l2.11-1.65-2-3.46-2.49 1a7.7 7.7 0 0 0-1.69-.98L15 3h-4l-.36 2.53c-.61.25-1.18.58-1.69.98l-2.49-1-2 3.46 2.11 1.65c-.04.32-.08.65-.08.98s.03.66.08.98l-2.11 1.65 2 3.46 2.49-1c.51.4 1.08.73 1.69.98L11 21h4l.37-2.53c.61-.25 1.18-.58 1.69-.98l2.49 1 2-3.46-2.12-1.65zM13 15.5A3.5 3.5 0 1 1 13 8a3.5 3.5 0 0 1 0 7.5z" />
+                    </svg>
+                </span>
+                <span class="nav-text">Settings</span>
+            </a>
+        </div>
+
+    </nav>
+
+    <!-- SIDEBAR FOOTER -->
+    <div class="sidebar-footer">
+        <div class="security-status">
+            <span class="status-dot"></span>
+            <div>
+                <strong>Active Shield</strong>
+                <span>Role: @(User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value ?? "Employee")</span>
+            </div>
+        </div>
+    </div>
+
+</aside>

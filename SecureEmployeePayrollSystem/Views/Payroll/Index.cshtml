@@ -1,0 +1,235 @@
+@model IEnumerable<SecureEmployeePayrollSystem.Models.Payroll>
+
+@{
+    ViewData["Title"] = "Payroll Management";
+    bool isStaffOrManager = (bool)ViewBag.IsStaffOrManager;
+    var employees = (List<Employee>)ViewBag.Employees;
+    int currentPage = (int)ViewBag.Page;
+    int totalPages = (int)ViewBag.TotalPages;
+
+    var firstDayOfMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+    var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
+}
+
+<div class="page-hero-banner" style="background-image: url('/images/payroll-banner.jpg');">
+    <div class="page-hero-content">
+        <h1 style="font-size: 26px; font-weight: 600; margin-bottom: 6px; color: #ffffff !important;">
+            Payroll Processing & Disbursement
+        </h1>
+        <p style="color: #e2e8f0 !important; margin: 0; font-size: 14px;">
+            Execute salary runs, compute allowances & deductions, generate tax compliance summaries, and issue digital payslips.
+        </p>
+    </div>
+    @if (isStaffOrManager)
+    {
+        <div class="page-hero-actions">
+            <a href="#runSection" class="btn btn-primary" style="box-shadow: 0 2px 6px rgba(0,0,0,0.3);">
+                ⚡ Run Monthly Payroll
+            </a>
+        </div>
+    }
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<!-- RUN MONTHLY PAYROLL FORM (PAYROLL MANAGERS & ADMINS) -->
+@if (isStaffOrManager)
+{
+    <div id="runSection" class="content-card" style="margin-bottom: 24px; border-left: 4px solid var(--primary);">
+        <div class="card-header" style="padding: 16px 20px; border-bottom: 1px solid var(--divider-color);">
+            <div>
+                <h2 style="font-size: 15px; font-weight: 600; margin: 0; color: var(--primary);">Execute Monthly Payroll Run</h2>
+                <p style="font-size: 12px; color: var(--text-secondary); margin: 2px 0 0;">
+                    Calculates earnings and deductions for all active employees for the selected pay period
+                </p>
+            </div>
+        </div>
+
+        <form asp-controller="Payroll" asp-action="Process" method="post" style="padding: 20px; display: grid; grid-template-columns: 1fr 1fr auto; gap: 16px; align-items: flex-end;" onsubmit="return confirm('Execute payroll calculation for the specified period?');">
+            @Html.AntiForgeryToken()
+
+            <div class="form-group">
+                <label for="periodStart">Pay Period Start Date *</label>
+                <input type="date" name="periodStart" id="periodStart" class="form-control" value="@firstDayOfMonth.ToString("yyyy-MM-dd")" required />
+            </div>
+
+            <div class="form-group">
+                <label for="periodEnd">Pay Period End Date *</label>
+                <input type="date" name="periodEnd" id="periodEnd" class="form-control" value="@lastDayOfMonth.ToString("yyyy-MM-dd")" required />
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="margin-bottom: 2px; white-space: nowrap;">
+                ⚡ Process Payroll Run
+            </button>
+        </form>
+    </div>
+}
+
+<!-- FILTER & RECORDS TABLE -->
+<div class="content-card">
+    <div class="card-header">
+        <div>
+            <h2>Payroll Records Log</h2>
+            <p>Showing @Model.Count() records (Total recorded: @ViewBag.TotalCount)</p>
+        </div>
+    </div>
+
+    <!-- FILTER BAR -->
+    <form asp-controller="Payroll" asp-action="Index" method="get" class="filter-bar">
+        <div class="form-group">
+            <label for="startStr">Period From</label>
+            <input type="date" id="startStr" name="startStr" value="@ViewBag.StartStr" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label for="endStr">Period To</label>
+            <input type="date" id="endStr" name="endStr" value="@ViewBag.EndStr" class="form-control" />
+        </div>
+
+        @if (isStaffOrManager)
+        {
+            <div class="form-group">
+                <label for="employeeId">Employee</label>
+                <select id="employeeId" name="employeeId" class="form-control filter-select">
+                    <option value="">All Employees</option>
+                    @foreach (var emp in employees)
+                    {
+                        <option value="@emp.EmployeeId" selected="@(ViewBag.EmployeeId == emp.EmployeeId ? "selected" : null)">
+                            @emp.FirstName @emp.LastName (#@emp.EmployeeId)
+                        </option>
+                    }
+                </select>
+            </div>
+        }
+
+        <div class="form-group">
+            <label for="status">Status</label>
+            <select id="status" name="status" class="form-control filter-select">
+                <option value="">All Statuses</option>
+                <option value="Processed" selected="@(ViewBag.Status == "Processed" ? "selected" : null)">Processed</option>
+                <option value="Paid" selected="@(ViewBag.Status == "Paid" ? "selected" : null)">Paid</option>
+                <option value="Pending" selected="@(ViewBag.Status == "Pending" ? "selected" : null)">Pending</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="margin-bottom: 2px;">Filter</button>
+        <a asp-controller="Payroll" asp-action="Index" class="btn btn-secondary" style="margin-bottom: 2px;">Reset</a>
+    </form>
+
+    <!-- DATA TABLE -->
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Slip #</th>
+                    <th>Employee Name</th>
+                    <th>Department</th>
+                    <th>Pay Period</th>
+                    <th>Gross Salary</th>
+                    <th>Deductions</th>
+                    <th>Net Salary</th>
+                    <th>Status</th>
+                    <th style="text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Any())
+                {
+                    foreach (var p in Model)
+                    {
+                        decimal net = p.NetSalary ?? (p.GrossSalary - p.TotalDeductions);
+                        <tr>
+                            <td><strong>#@p.PayrollId</strong></td>
+                            <td>
+                                <a asp-controller="Employees" asp-action="Details" asp-route-id="@p.EmployeeId" style="font-weight: 500; color: var(--seps-primary); text-decoration: none;">
+                                    @p.Employee?.FirstName @p.Employee?.LastName
+                                </a>
+                            </td>
+                            <td>@(p.Employee?.Department?.DepartmentName ?? "N/A")</td>
+                            <td>@p.PayPeriodStart.ToString("dd MMM yyyy") - @p.PayPeriodEnd.ToString("dd MMM yyyy")</td>
+                            <td>₹@p.GrossSalary.ToString("N2")</td>
+                            <td>₹@p.TotalDeductions.ToString("N2")</td>
+                            <td><strong style="color: var(--google-green);">₹@net.ToString("N2")</strong></td>
+                            <td>
+                                @if (p.PayrollStatus == "Paid")
+                                {
+                                    <span class="status-badge status-success">Paid</span>
+                                }
+                                else if (p.PayrollStatus == "Processed")
+                                {
+                                    <span class="status-badge status-info">Processed</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge status-warning">@p.PayrollStatus</span>
+                                }
+                            </td>
+                            <td style="text-align: right; white-space: nowrap;">
+                                <a asp-controller="Payroll" asp-action="Details" asp-route-id="@p.PayrollId" class="btn btn-secondary btn-sm">
+                                    Details
+                                </a>
+                                <a asp-controller="Payroll" asp-action="Payslip" asp-route-id="@p.PayrollId" class="btn btn-primary btn-sm">
+                                    Payslip
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="9">
+                            <div class="empty-state">
+                                <h3>No payroll records found</h3>
+                                <p>No payroll runs match your filter criteria.</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- PAGINATION -->
+    @if (totalPages > 1)
+    {
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-top: 1px solid var(--border-color);">
+            <div style="font-size: 13px; color: var(--text-secondary);">
+                Page @currentPage of @totalPages
+            </div>
+            <div style="display: flex; gap: 6px;">
+                @if (currentPage > 1)
+                {
+                    <a asp-controller="Payroll" asp-action="Index" 
+                       asp-route-page="@(currentPage - 1)" 
+                       asp-route-startStr="@ViewBag.StartStr" 
+                       asp-route-endStr="@ViewBag.EndStr" 
+                       asp-route-employeeId="@ViewBag.EmployeeId" 
+                       asp-route-status="@ViewBag.Status" 
+                       class="btn btn-secondary btn-sm">&larr; Previous</a>
+                }
+                @if (currentPage < totalPages)
+                {
+                    <a asp-controller="Payroll" asp-action="Index" 
+                       asp-route-page="@(currentPage + 1)" 
+                       asp-route-startStr="@ViewBag.StartStr" 
+                       asp-route-endStr="@ViewBag.EndStr" 
+                       asp-route-employeeId="@ViewBag.EmployeeId" 
+                       asp-route-status="@ViewBag.Status" 
+                       class="btn btn-secondary btn-sm">Next &rarr;</a>
+                }
+            </div>
+        </div>
+    }
+</div>

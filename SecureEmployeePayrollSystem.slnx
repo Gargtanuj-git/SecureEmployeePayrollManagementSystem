@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="SecureEmployeePayrollSystem/SecureEmployeePayrollSystem.csproj" />
+  <Project Path="SecureEmployeePayrollSystem.Tests/SecureEmployeePayrollSystem.Tests.csproj" />
+</Solution>

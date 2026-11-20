@@ -1,0 +1,244 @@
+<header class="app-header">
+
+    <!-- LEFT -->
+    <div class="header-left">
+
+        <button type="button"
+                id="openSidebar"
+                class="mobile-menu-button"
+                aria-label="Open navigation"
+                aria-expanded="false">
+
+            <svg viewBox="0 0 24 24"
+                 aria-hidden="true">
+
+                <path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z" />
+
+            </svg>
+
+        </button>
+
+
+        <button type="button"
+                id="desktopSidebarToggle"
+                class="desktop-sidebar-toggle"
+                aria-label="Toggle sidebar"
+                aria-expanded="true">
+
+            <svg viewBox="0 0 24 24"
+                 aria-hidden="true">
+
+                <path d="M4 5h16v2H4V5zm0 6h16v2H4v-2zm0 6h16v2H4v-2z" />
+
+            </svg>
+
+        </button>
+
+
+        <div class="header-page-context">
+
+            <span class="header-context-title">
+                @ViewData["Title"]
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- CENTER SEARCH -->
+    <div class="global-search">
+
+        <svg viewBox="0 0 24 24"
+             aria-hidden="true">
+
+            <path d="M9.5 3a6.5 6.5 0 1 0 4.04 11.59l4.43 4.43 1.41-1.41-4.43-4.43A6.5 6.5 0 0 0 9.5 3zm0 2a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9z" />
+
+        </svg>
+
+        <input type="search"
+               placeholder="Search employees, payroll, departments..."
+               aria-label="Global search" />
+
+    </div>
+
+
+    <!-- RIGHT -->
+    <div class="header-right">
+
+
+        <!-- THEME PILL TOGGLE -->
+        <button type="button"
+                class="theme-pill-toggle theme-toggle-btn"
+                aria-label="Toggle dark/light theme"
+                title="Toggle Theme (Light / Dark)">
+            <span class="theme-pill-indicator">
+                <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true" width="14" height="14">
+                    <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z" />
+                </svg>
+                <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true" width="14" height="14" style="display: none;">
+                    <path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58a.996.996 0 0 0-1.41 0 .996.996 0 0 0 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37a.996.996 0 0 0-1.41 0 .996.996 0 0 0 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41l-1.06-1.06zm1.06-10.96a.996.996 0 0 0 0-1.41.996.996 0 0 0-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36a.996.996 0 0 0 0-1.41.996.996 0 0 0-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z" />
+                </svg>
+            </span>
+            <span class="theme-label-text" style="font-size: 12px; font-weight: 600;">Light</span>
+        </button>
+
+        <!-- HELP -->
+        <button type="button"
+                class="header-icon-button"
+                aria-label="Help"
+                onclick="showToast('Secure Employee Payroll System v1.0', 'info')">
+            <svg viewBox="0 0 24 24"
+                 aria-hidden="true">
+                <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 17h-2v-2h2zm2.07-7.25-.9.92A3.5 3.5 0 0 0 13 15h-2a5.49 5.49 0 0 1 1.61-3.9l1.24-1.26A1.99 1.99 0 0 0 14.5 8.5 2.5 2.5 0 0 0 9.5 8H7a5 5 0 0 1 10 0 4.01 4.01 0 0 1-1.93 3.75z" />
+            </svg>
+        </button>
+
+        <!-- NOTIFICATION -->
+        <button type="button"
+                class="header-icon-button notification-button"
+                aria-label="Notifications"
+                onclick="showToast('System operational. No active critical alerts.', 'success')">
+            <svg viewBox="0 0 24 24"
+                 aria-hidden="true">
+                <path d="M12 22a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 22zm6-6v-5a6 6 0 0 0-5-5.91V4a1 1 0 0 0-2 0v1.09A6 6 0 0 0 6 11v5l-2 2v1h16v-1l-2-2z" />
+            </svg>
+            <span class="notification-dot"></span>
+        </button>
+
+
+        <!-- USER MENU -->
+        <div class="user-menu">
+
+            <button type="button"
+                    id="userMenuButton"
+                    class="user-menu-button"
+                    aria-expanded="false">
+
+                <span class="header-avatar">
+
+                    @{
+                        var currentUsername =
+                            User.Identity?.Name ?? "User";
+
+                        var avatarLetter =
+                            currentUsername
+                                .Substring(0, 1)
+                                .ToUpper();
+                    }
+
+                    @avatarLetter
+
+                </span>
+
+
+                <span class="header-user-details">
+
+                    <strong>
+                        @currentUsername
+                    </strong>
+
+                    <small>
+
+                        @{
+                            var currentRoles =
+                                User.Claims
+                                    .Where(c =>
+                                        c.Type ==
+                                        System.Security.Claims.ClaimTypes.Role)
+                                    .Select(c => c.Value)
+                                    .ToList();
+                        }
+
+                        @(currentRoles.Any()
+                            ? string.Join(", ", currentRoles)
+                            : "User")
+
+                    </small>
+
+                </span>
+
+
+                <svg class="user-menu-arrow"
+                     viewBox="0 0 24 24"
+                     aria-hidden="true">
+
+                    <path d="m7 10 5 5 5-5H7z" />
+
+                </svg>
+
+            </button>
+
+
+            <!-- DROPDOWN -->
+            <div id="userMenuDropdown"
+                 class="user-menu-dropdown">
+
+                <div class="dropdown-user-info">
+
+                    <span class="dropdown-avatar">
+                        @avatarLetter
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            @currentUsername
+                        </strong>
+
+                        <span>
+                            @(currentRoles.Any()
+                                ? string.Join(", ", currentRoles)
+                                : "User")
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="dropdown-divider"></div>
+
+                <a asp-controller="Home" asp-action="Index" class="dropdown-item">
+                    <span>Dashboard / Profile</span>
+                </a>
+
+                <a asp-controller="Settings" asp-action="Index" class="dropdown-item">
+                    <span>Preferences & Settings</span>
+                </a>
+
+                @if (User.IsInRole("Admin"))
+                {
+                    <a asp-controller="AuditLogs" asp-action="Index" class="dropdown-item">
+                        <span>Security & Audit Logs</span>
+                    </a>
+                }
+
+
+                <div class="dropdown-divider"></div>
+
+
+                <form asp-controller="Account"
+                      asp-action="Logout"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
+                    <button type="submit"
+                            class="dropdown-item dropdown-logout">
+
+                        <span>
+                            Sign out
+                        </span>
+
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</header>

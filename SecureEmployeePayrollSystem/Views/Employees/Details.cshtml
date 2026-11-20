@@ -1,0 +1,266 @@
+@model SecureEmployeePayrollSystem.Models.Employee
+
+@{
+    ViewData["Title"] = $"{Model.FirstName} {Model.LastName} - Profile";
+    bool canManage = User.IsInRole("Admin") || User.IsInRole("HR Manager");
+}
+
+<div class="page-header">
+    <div style="display: flex; align-items: center; gap: 16px;">
+        <img src="/images/@(Model.EmployeeId % 2 == 0 ? "avatar-2.jpg" : "avatar-1.jpg")" alt="@Model.FirstName @Model.LastName" class="employee-avatar-img" style="width: 60px; height: 60px; border: 3px solid var(--seps-primary); box-shadow: 0 2px 8px rgba(0,0,0,0.15);" />
+        <div>
+            <h1>@Model.FirstName @Model.LastName</h1>
+            <p>Employee ID: #@Model.EmployeeId | @(Model.Designation?.DesignationName ?? "Designation Unassigned") - @(Model.Department?.DepartmentName ?? "Department Unassigned")</p>
+        </div>
+    </div>
+    <div class="page-header-actions" style="display: flex; gap: 8px;">
+        <a asp-controller="Employees" asp-action="Index" class="btn btn-secondary">
+            &larr; Directory
+        </a>
+        @if (canManage)
+        {
+            <a asp-controller="Employees" asp-action="Edit" asp-route-id="@Model.EmployeeId" class="btn btn-primary">
+                Edit Profile
+            </a>
+        }
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+<!-- KEY INFO SUMMARY CARDS -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 24px;">
+
+    <!-- EMPLOYMENT DETAILS -->
+    <div class="content-card">
+        <div class="card-header" style="padding: 16px 20px; border-bottom: 1px solid var(--seps-border);">
+            <h2 style="font-size: 15px; font-weight: 600; margin: 0;">Employment Details</h2>
+        </div>
+        <div style="padding: 20px; display: flex; flex-direction: column; gap: 12px; font-size: 14px;">
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--seps-text-secondary);">Status:</span>
+                <span>
+                    @if (Model.EmploymentStatus == "Active")
+                    {
+                        <span class="status-badge status-success">Active</span>
+                    }
+                    else if (Model.EmploymentStatus == "On Leave")
+                    {
+                        <span class="status-badge status-warning">On Leave</span>
+                    }
+                    else
+                    {
+                        <span class="status-badge status-danger">@Model.EmploymentStatus</span>
+                    }
+                </span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--seps-text-secondary);">Department:</span>
+                <strong>@(Model.Department?.DepartmentName ?? "N/A")</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--seps-text-secondary);">Designation:</span>
+                <strong>@(Model.Designation?.DesignationName ?? "N/A")</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--seps-text-secondary);">Salary Structure:</span>
+                <strong>@(Model.SalaryStructure?.StructureName ?? "N/A")</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--seps-text-secondary);">Basic Salary:</span>
+                <strong>₹@(Model.SalaryStructure?.BasicSalary.ToString("N0") ?? "0")</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--seps-text-secondary);">Date Joined:</span>
+                <span>@Model.HireDate.ToString("dd MMM yyyy")</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- PERSONAL & CONTACT -->
+    <div class="content-card">
+        <div class="card-header" style="padding: 16px 20px; border-bottom: 1px solid var(--seps-border);">
+            <h2 style="font-size: 15px; font-weight: 600; margin: 0;">Personal & Contact</h2>
+        </div>
+        <div style="padding: 20px; display: flex; flex-direction: column; gap: 12px; font-size: 14px;">
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--seps-text-secondary);">Email:</span>
+                <span><a href="mailto:@Model.Email" style="color: var(--seps-primary); text-decoration: none;">@Model.Email</a></span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--seps-text-secondary);">Phone:</span>
+                <span>@Model.Phone</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--seps-text-secondary);">Gender:</span>
+                <span>@Model.Gender</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--seps-text-secondary);">Date of Birth:</span>
+                <span>@Model.DateOfBirth.ToString("dd MMM yyyy")</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--seps-text-secondary);">Address:</span>
+                <span style="text-align: right; max-width: 60%;">@Model.Address</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- BANK ACCOUNT -->
+    <div class="content-card">
+        <div class="card-header" style="padding: 16px 20px; border-bottom: 1px solid var(--seps-border);">
+            <h2 style="font-size: 15px; font-weight: 600; margin: 0;">Disbursement Account</h2>
+        </div>
+        <div style="padding: 20px; display: flex; flex-direction: column; gap: 12px; font-size: 14px;">
+            @if (Model.BankAccount != null)
+            {
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--seps-text-secondary);">Bank / Institution:</span>
+                    <strong>@Model.BankAccount.RoleName</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--seps-text-secondary);">Account Type:</span>
+                    <strong>@Model.BankAccount.AccountType</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--seps-text-secondary);">Account Number:</span>
+                    <span>•••• @(Model.BankAccount.AccountNumber.Length > 4 ? Model.BankAccount.AccountNumber.Substring(Model.BankAccount.AccountNumber.Length - 4) : Model.BankAccount.AccountNumber)</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--seps-text-secondary);">Primary Account:</span>
+                    <span class="status-badge @(Model.BankAccount.IsPrimary ? "status-success" : "status-neutral")">@(Model.BankAccount.IsPrimary ? "Yes (Active Direct Deposit)" : "Secondary")</span>
+                </div>
+            }
+            else
+            {
+                <div class="empty-state" style="padding: 10px;">
+                    <p style="margin: 0; font-size: 13px; color: var(--seps-text-secondary);">No direct deposit bank account currently configured.</p>
+                </div>
+            }
+        </div>
+    </div>
+
+</div>
+
+<!-- RECENT ATTENDANCE TABLE -->
+<div class="content-card" style="margin-bottom: 24px;">
+    <div class="card-header" style="padding: 16px 20px; border-bottom: 1px solid var(--seps-border); display: flex; justify-content: space-between; align-items: center;">
+        <h2 style="font-size: 15px; font-weight: 600; margin: 0;">Recent Attendance Records</h2>
+        <a asp-controller="Attendance" asp-action="Index" class="btn btn-secondary btn-sm">View All Logs</a>
+    </div>
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Clock In</th>
+                    <th>Clock Out</th>
+                    <th>Working Hours</th>
+                    <th>Overtime</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Attendances.Any())
+                {
+                    foreach (var att in Model.Attendances)
+                    {
+                        <tr>
+                            <td>@att.AttendanceDate.ToString("dd MMM yyyy")</td>
+                            <td>
+                                @if (att.AttendanceStatus == "Present")
+                                {
+                                    <span class="status-badge status-success">Present</span>
+                                }
+                                else if (att.AttendanceStatus == "Half Day")
+                                {
+                                    <span class="status-badge status-warning">Half Day</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge status-danger">@att.AttendanceStatus</span>
+                                }
+                            </td>
+                            <td>@(att.CheckInTime?.ToString(@"hh\:mm") ?? "-")</td>
+                            <td>@(att.CheckOutTime?.ToString(@"hh\:mm") ?? "-")</td>
+                            <td>@(att.WorkingHours?.ToString("0.0") ?? "-") hrs</td>
+                            <td>@(att.OvertimeHours?.ToString("0.0") ?? "-") hrs</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: var(--seps-text-secondary); padding: 20px;">
+                            No recent attendance records found.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- PAYSLIP & PAYROLL HISTORY -->
+<div class="content-card" style="margin-bottom: 24px;">
+    <div class="card-header" style="padding: 16px 20px; border-bottom: 1px solid var(--seps-border); display: flex; justify-content: space-between; align-items: center;">
+        <h2 style="font-size: 15px; font-weight: 600; margin: 0;">Payroll & Payslip History</h2>
+        <a asp-controller="Payroll" asp-action="Index" class="btn btn-secondary btn-sm">All Payroll Records</a>
+    </div>
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Pay Period</th>
+                    <th>Gross Salary</th>
+                    <th>Deductions</th>
+                    <th>Net Salary</th>
+                    <th>Status</th>
+                    <th style="text-align: right;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Payrolls.Any())
+                {
+                    foreach (var pay in Model.Payrolls)
+                    {
+                        <tr>
+                            <td><strong>@pay.PayPeriodStart.ToString("dd MMM yyyy") - @pay.PayPeriodEnd.ToString("dd MMM yyyy")</strong></td>
+                            <td>₹@pay.GrossSalary.ToString("N0")</td>
+                            <td>₹@pay.TotalDeductions.ToString("N0")</td>
+                            <td><strong>₹@((pay.NetSalary ?? (pay.GrossSalary - pay.TotalDeductions)).ToString("N0"))</strong></td>
+                            <td>
+                                @if (pay.PayrollStatus == "Paid" || pay.PayrollStatus == "Processed")
+                                {
+                                    <span class="status-badge status-success">@pay.PayrollStatus</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge status-warning">@pay.PayrollStatus</span>
+                                }
+                            </td>
+                            <td style="text-align: right;">
+                                <a asp-controller="Payroll" asp-action="Payslip" asp-route-id="@pay.PayrollId" class="btn btn-secondary btn-sm">
+                                    Generate Payslip
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: var(--seps-text-secondary); padding: 20px;">
+                            No payroll history records for this employee.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

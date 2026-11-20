@@ -1,0 +1,182 @@
+@{
+    ViewData["Title"] = "Reports & Analytics";
+    var departments = (List<Department>)ViewBag.Departments;
+    var firstDayOfMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+    var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
+}
+
+<div class="page-hero-banner" style="background-image: url('/images/reports-banner.jpg');">
+    <div class="page-hero-content">
+        <h1 style="font-size: 26px; font-weight: 600; margin-bottom: 6px; color: #ffffff !important;">
+            Reports & Export Center
+        </h1>
+        <p style="color: #e2e8f0 !important; margin: 0; font-size: 14px;">
+            Export compliance-ready workforce datasets, payroll registers, attendance summaries, and security audit trails with built-in CSV formula sanitization.
+        </p>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;">
+
+    <!-- 1. EMPLOYEE DIRECTORY REPORT -->
+    <div class="content-card">
+        <div class="card-header" style="padding: 16px 20px; border-bottom: 1px solid var(--divider-color);">
+            <div>
+                <h2 style="font-size: 16px; font-weight: 600; margin: 0; color: var(--text-primary);">Workforce & Employee Master</h2>
+                <p style="font-size: 12px; color: var(--text-secondary); margin: 2px 0 0;">Complete profiles, contact info, departments, and pay grades</p>
+            </div>
+        </div>
+        <form asp-controller="Reports" asp-action="ExportEmployees" method="get" style="padding: 20px;">
+            <div class="form-group" style="margin-bottom: 12px;">
+                <label for="deptSelect">Filter by Department</label>
+                <select name="departmentId" id="deptSelect" class="form-control">
+                    <option value="">All Departments</option>
+                    @foreach (var d in departments)
+                    {
+                        <option value="@d.DepartmentId">@d.DepartmentName</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label for="empStatus">Employment Status</label>
+                <select name="status" id="empStatus" class="form-control">
+                    <option value="">All Statuses</option>
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                    <option value="On Leave">On Leave</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">
+                📥 Export Employee Master CSV
+            </button>
+        </form>
+    </div>
+
+    <!-- 2. ATTENDANCE REPORT -->
+    <div class="content-card">
+        <div class="card-header" style="padding: 16px 20px; border-bottom: 1px solid var(--divider-color);">
+            <div>
+                <h2 style="font-size: 16px; font-weight: 600; margin: 0; color: var(--text-primary);">Timekeeping & Attendance Register</h2>
+                <p style="font-size: 12px; color: var(--text-secondary); margin: 2px 0 0;">Check-in/out timestamps, hours worked, and status</p>
+            </div>
+        </div>
+        <form asp-controller="Reports" asp-action="ExportAttendance" method="get" style="padding: 20px;">
+            <div class="form-group" style="margin-bottom: 12px;">
+                <label for="attStart">From Date</label>
+                <input type="date" name="startStr" id="attStart" class="form-control" value="@firstDayOfMonth.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="form-group" style="margin-bottom: 12px;">
+                <label for="attEnd">To Date</label>
+                <input type="date" name="endStr" id="attEnd" class="form-control" value="@lastDayOfMonth.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label for="attDept">Department</label>
+                <select name="departmentId" id="attDept" class="form-control">
+                    <option value="">All Departments</option>
+                    @foreach (var d in departments)
+                    {
+                        <option value="@d.DepartmentId">@d.DepartmentName</option>
+                    }
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">
+                📥 Export Attendance Log CSV
+            </button>
+        </form>
+    </div>
+
+    <!-- 3. LEAVE APPLICATIONS REPORT -->
+    <div class="content-card">
+        <div class="card-header" style="padding: 16px 20px; border-bottom: 1px solid var(--divider-color);">
+            <div>
+                <h2 style="font-size: 16px; font-weight: 600; margin: 0; color: var(--text-primary);">Leave History & Allocations</h2>
+                <p style="font-size: 12px; color: var(--text-secondary); margin: 2px 0 0;">Time-off applications, approved days, and reasons</p>
+            </div>
+        </div>
+        <form asp-controller="Reports" asp-action="ExportLeave" method="get" style="padding: 20px;">
+            <div class="form-group" style="margin-bottom: 12px;">
+                <label for="leaveStart">From Date</label>
+                <input type="date" name="startStr" id="leaveStart" class="form-control" value="@firstDayOfMonth.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="form-group" style="margin-bottom: 12px;">
+                <label for="leaveEnd">To Date</label>
+                <input type="date" name="endStr" id="leaveEnd" class="form-control" value="@lastDayOfMonth.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label for="leaveStatus">Application Status</label>
+                <select name="status" id="leaveStatus" class="form-control">
+                    <option value="">All Statuses</option>
+                    <option value="Approved">Approved</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Rejected">Rejected</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">
+                📥 Export Leave Summary CSV
+            </button>
+        </form>
+    </div>
+
+    <!-- 4. MONTHLY PAYROLL REPORT -->
+    <div class="content-card">
+        <div class="card-header" style="padding: 16px 20px; border-bottom: 1px solid var(--divider-color);">
+            <div>
+                <h2 style="font-size: 16px; font-weight: 600; margin: 0; color: var(--text-primary);">Payroll Compensation Register</h2>
+                <p style="font-size: 12px; color: var(--text-secondary); margin: 2px 0 0;">Gross salaries, statutory deductions, and net pay breakdown</p>
+            </div>
+        </div>
+        <form asp-controller="Reports" asp-action="ExportPayroll" method="get" style="padding: 20px;">
+            <div class="form-group" style="margin-bottom: 12px;">
+                <label for="payStart">Pay Period Start</label>
+                <input type="date" name="startStr" id="payStart" class="form-control" value="@firstDayOfMonth.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="form-group" style="margin-bottom: 12px;">
+                <label for="payEnd">Pay Period End</label>
+                <input type="date" name="endStr" id="payEnd" class="form-control" value="@lastDayOfMonth.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label for="payStatus">Payroll Status</label>
+                <select name="status" id="payStatus" class="form-control">
+                    <option value="">All Statuses</option>
+                    <option value="Processed">Processed</option>
+                    <option value="Paid">Paid</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">
+                📥 Export Payroll Register CSV
+            </button>
+        </form>
+    </div>
+
+    <!-- 5. PAYMENT DISBURSEMENT VOUCHERS -->
+    <div class="content-card">
+        <div class="card-header" style="padding: 16px 20px; border-bottom: 1px solid var(--divider-color);">
+            <div>
+                <h2 style="font-size: 16px; font-weight: 600; margin: 0; color: var(--text-primary);">Disbursement Settlement Vouchers</h2>
+                <p style="font-size: 12px; color: var(--text-secondary); margin: 2px 0 0;">Transaction reference numbers, amounts, and settlement dates</p>
+            </div>
+        </div>
+        <form asp-controller="Reports" asp-action="ExportPayments" method="get" style="padding: 20px;">
+            <div class="form-group" style="margin-bottom: 12px;">
+                <label for="pmtStart">Payment From</label>
+                <input type="date" name="startStr" id="pmtStart" class="form-control" value="@firstDayOfMonth.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="form-group" style="margin-bottom: 12px;">
+                <label for="pmtEnd">Payment To</label>
+                <input type="date" name="endStr" id="pmtEnd" class="form-control" value="@lastDayOfMonth.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label for="pmtStatus">Payment Status</label>
+                <select name="status" id="pmtStatus" class="form-control">
+                    <option value="">All Statuses</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Processing">Processing</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">
+                📥 Export Payments CSV
+            </button>
+        </form>
+    </div>
+
+</div>

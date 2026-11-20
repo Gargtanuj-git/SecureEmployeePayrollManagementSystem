@@ -1,0 +1,96 @@
+@model IEnumerable<SecureEmployeePayrollSystem.Models.AppRole>
+
+@{
+    ViewData["Title"] = "Roles & Permissions";
+    var rolePermissions = (List<VwRolePermission>)ViewBag.RolePermissions;
+    var allPermissions = rolePermissions.Select(rp => rp.PermissionName).Distinct().OrderBy(p => p).ToList();
+    var rolesList = Model.OrderBy(r => r.RoleId).ToList();
+}
+
+<div class="page-header">
+    <div>
+        <h1>Roles & Access Permissions</h1>
+        <p>Enterprise Role-Based Access Control (RBAC) matrix and privilege separation policies.</p>
+    </div>
+</div>
+
+<!-- ROLES CARDS -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 24px;">
+    @foreach (var r in rolesList)
+    {
+        <div class="content-card" style="padding: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                <div style="font-size: 16px; font-weight: 600;">@r.RoleName</div>
+                <span class="status-badge status-neutral">Role #@r.RoleId</span>
+            </div>
+            <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px; min-height: 38px;">
+                @(r.Description ?? "Standard enterprise organizational role.")
+            </div>
+            <div style="font-size: 13px; font-weight: 500;">
+                Assigned to: <strong style="color: var(--primary);">@r.UserRoles.Count user(s)</strong>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- PERMISSIONS MATRIX -->
+<div class="content-card">
+    <div class="card-header">
+        <div>
+            <h2>Role-Permission Security Matrix</h2>
+            <p>Direct view of database-enforced permissions from <code>vw_RolePermissions</code></p>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th style="min-width: 220px;">Permission Name</th>
+                    @foreach (var r in rolesList)
+                    {
+                        <th style="text-align: center; min-width: 120px;">@r.RoleName</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @if (allPermissions.Any())
+                {
+                    foreach (var perm in allPermissions)
+                    {
+                        <tr>
+                            <td>
+                                <code>@perm</code>
+                            </td>
+                            @foreach (var r in rolesList)
+                            {
+                                bool hasPerm = rolePermissions.Any(rp => rp.RoleId == r.RoleId && rp.PermissionName == perm);
+                                <td style="text-align: center;">
+                                    @if (hasPerm)
+                                    {
+                                        <span style="color: var(--google-green); font-size: 16px; font-weight: bold;">✔</span>
+                                    }
+                                    else
+                                    {
+                                        <span style="color: var(--seps-border); font-size: 16px;">—</span>
+                                    }
+                                </td>
+                            }
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="@(rolesList.Count + 1)">
+                            <div class="empty-state">
+                                <h3>No permission mapping data</h3>
+                                <p>Role permissions are configured directly via database security roles.</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

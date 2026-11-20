@@ -1,0 +1,949 @@
+@model SecureEmployeePayrollSystem.ViewModels.HomePublicViewModel
+
+@{
+    Layout = null;
+    ViewData["Title"] = "SEPS | Secure Employee Payroll Management System";
+    var year = DateTime.UtcNow.Year;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <meta name="description" content="SEPS helps organisations manage employees, attendance, payroll, workforce information, reports and workplace operations through one secure and integrated platform." />
+
+    <!-- Favicon Suite -->
+    <link rel="icon" type="image/png" sizes="32x32" href="~/images/seps-favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="~/images/seps-favicon-16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="~/images/seps-apple-touch-icon.png" />
+    <link rel="shortcut icon" href="~/favicon.ico" />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Scoped Homepage Stylesheet -->
+    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+</head>
+
+<body class="seps-home">
+
+    <!-- ====================================================================
+         1. NAVIGATION HEADER
+         ==================================================================== -->
+    <header class="sh-header">
+        <div class="sh-container">
+            <div class="sh-header-inner">
+                <!-- Left: Official SEPS Branding -->
+                <a href="#hero" class="sh-brand" title="Secure Employee Payroll Management System">
+                    <img src="~/images/seps-logo.png" alt="SEPS Logo" class="sh-brand-logo-img" />
+                </a>
+
+                <!-- Desktop Navigation Links -->
+                <nav class="sh-nav" aria-label="Main Navigation">
+                    <a href="#hero" class="sh-nav-link">Home</a>
+                    <a href="#about" class="sh-nav-link">About Our Team</a>
+                    <a href="#features" class="sh-nav-link">Features</a>
+                    <a href="#how-it-works" class="sh-nav-link">How It Works</a>
+                    <a href="#security" class="sh-nav-link">Security</a>
+                    <a href="#feedback" class="sh-nav-link">Feedback</a>
+                    <a href="#contact" class="sh-nav-link">Contact Us</a>
+                    <a href="#faq" class="sh-nav-link">Help</a>
+                </nav>
+
+                <!-- Right Side Actions -->
+                <div class="sh-nav-actions">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <a asp-controller="Home" asp-action="Dashboard" class="sh-btn sh-btn-teal" style="padding: 8px 20px;">
+                            Dashboard →
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Account" asp-action="Login" class="sh-btn-signin">Sign In</a>
+                        <a asp-controller="Account" asp-action="Register" class="sh-btn sh-btn-teal" style="padding: 8px 20px;">
+                            Create Account
+                        </a>
+                    }
+
+                    <!-- Mobile Hamburger Toggle -->
+                    <button type="button" class="sh-mobile-toggle" id="shMobileToggle" aria-label="Toggle navigation menu" aria-expanded="false">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Navigation Dropdown -->
+            <div class="sh-mobile-menu" id="shMobileMenu">
+                <a href="#hero" class="sh-nav-link">Home</a>
+                <a href="#about" class="sh-nav-link">About Our Team</a>
+                <a href="#features" class="sh-nav-link">Features</a>
+                <a href="#how-it-works" class="sh-nav-link">How It Works</a>
+                <a href="#security" class="sh-nav-link">Security</a>
+                <a href="#feedback" class="sh-nav-link">Feedback</a>
+                <a href="#contact" class="sh-nav-link">Contact Us</a>
+                <a href="#faq" class="sh-nav-link">Help</a>
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <a asp-controller="Account" asp-action="Login" class="sh-btn sh-btn-navy-outline" style="flex: 1; padding: 10px;">Sign In</a>
+                    <a asp-controller="Account" asp-action="Register" class="sh-btn sh-btn-teal" style="flex: 1; padding: 10px;">Create Account</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ====================================================================
+         2. HERO SECTION
+         ==================================================================== -->
+    <section class="sh-hero" id="hero">
+        <div class="sh-hero-pattern"></div>
+        <div class="sh-hero-orb sh-hero-orb-1" aria-hidden="true"></div>
+        <div class="sh-hero-orb sh-hero-orb-2" aria-hidden="true"></div>
+        <div class="sh-container">
+            <div class="sh-hero-grid">
+                <!-- Left Hero Content -->
+                <div class="sh-hero-content">
+                    <div class="sh-hero-badge sh-animate-fade-down">
+                        <span>●</span> The Modern Workplace, Connected
+                    </div>
+                    <h1 class="sh-hero-heading sh-animate-fade-up sh-delay-1">
+                        Empowering People,<br>Building a Better Tomorrow.
+                    </h1>
+                    <p class="sh-hero-paragraph sh-animate-fade-up sh-delay-2">
+                        SEPS helps employers and organisations manage people, payroll, attendance, employee records, reports and workplace operations through a secure and integrated platform.
+                    </p>
+                    <div class="sh-hero-buttons sh-animate-fade-up sh-delay-3">
+                        <a asp-controller="Account" asp-action="Login" class="sh-btn sh-btn-teal sh-btn-glow">
+                            Sign In / Get Started
+                        </a>
+                        <a asp-controller="Account" asp-action="Register" class="sh-btn sh-btn-outline">
+                            Create an Account
+                        </a>
+                    </div>
+                    <div class="sh-hero-trust sh-animate-fade-up sh-delay-4">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#08A77B" stroke-width="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        </svg>
+                        <span>Secure. Reliable. Built for modern enterprise workforce governance.</span>
+                    </div>
+                </div>
+
+                <!-- Right Hero Visual -->
+                <div class="sh-hero-visual sh-animate-fade-in sh-delay-2">
+                    <div class="sh-hero-img-wrap">
+                        <img src="~/images/home/seps-hero-workplace.webp" alt="Modern corporate workplace collaboration" class="sh-hero-img" onerror="this.src='/images/home/seps-hero-workplace.jpg'" />
+                        <div class="sh-hero-img-shine" aria-hidden="true"></div>
+                    </div>
+
+                    <!-- Floating Glass Feature Panel (Reference Match) -->
+                    <div class="sh-floating-panel sh-floating-anim">
+                        <div class="sh-floating-panel-title">
+                            Enterprise Capabilities Active
+                        </div>
+                        <div class="sh-floating-badges">
+                            <div class="sh-chip">
+                                <span style="color:#08A77B;">✓</span> Employee Management
+                            </div>
+                            <div class="sh-chip">
+                                <span style="color:#08A77B;">✓</span> Payroll Processing
+                            </div>
+                            <div class="sh-chip">
+                                <span style="color:#08A77B;">✓</span> Attendance Tracking
+                            </div>
+                            <div class="sh-chip">
+                                <span style="color:#08A77B;">✓</span> Enterprise Security
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====================================================================
+         3. PLATFORM FEATURES SECTION
+         ==================================================================== -->
+    <section class="sh-features-section" id="features">
+        <div class="sh-container">
+            <div class="sh-center reveal-on-scroll">
+                <span class="sh-section-tag">Platform Features</span>
+                <h2 class="sh-section-title">The essentials, working together.</h2>
+                <p class="sh-section-desc">
+                    Everything you need to keep everyday workforce management organised in one approachable, high-trust experience.
+                </p>
+
+                <!-- Horizontal Feature Highlight Strip (Reference Match) -->
+                <div class="sh-pill-strip reveal-on-scroll">
+                    <div class="sh-strip-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                        Employee Records
+                    </div>
+                    <div class="sh-strip-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+                        Payroll Engine
+                    </div>
+                    <div class="sh-strip-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                        Attendance
+                    </div>
+                    <div class="sh-strip-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                        Integrity Security
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6 Grid Feature Cards -->
+            <div class="sh-features-grid">
+                <!-- Feature 1: Attendance Tracking -->
+                <div class="sh-feat-card reveal-on-scroll stagger-1">
+                    <div class="sh-feat-icon purple">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    </div>
+                    <h3 class="sh-feat-title">Attendance Tracking</h3>
+                    <p class="sh-feat-desc">
+                        Record and monitor employee shifts, check-ins, working hours, and time logs with comprehensive status validation.
+                    </p>
+                </div>
+
+                <!-- Feature 2: Employee Management -->
+                <div class="sh-feat-card reveal-on-scroll stagger-2">
+                    <div class="sh-feat-icon teal">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    </div>
+                    <h3 class="sh-feat-title">Employee Directory</h3>
+                    <p class="sh-feat-desc">
+                        Maintain structured profiles, contact details, designations, bank accounts, and departmental assignments with ease.
+                    </p>
+                </div>
+
+                <!-- Feature 3: Payroll Processing -->
+                <div class="sh-feat-card reveal-on-scroll stagger-3">
+                    <div class="sh-feat-icon amber">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                    </div>
+                    <h3 class="sh-feat-title">Payroll Processing</h3>
+                    <p class="sh-feat-desc">
+                        Manage salary structures, compute allowances and deductions, execute payroll runs, and generate downloadable payslips.
+                    </p>
+                </div>
+
+                <!-- Feature 4: Leave Management -->
+                <div class="sh-feat-card reveal-on-scroll stagger-4">
+                    <div class="sh-feat-icon cyan">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v4"></path><path d="M16 2v4"></path><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M3 10h18"></path></svg>
+                    </div>
+                    <h3 class="sh-feat-title">Leave Management</h3>
+                    <p class="sh-feat-desc">
+                        Streamline leave applications, balance tracking, and role-based multi-tier supervisor approval workflows.
+                    </p>
+                </div>
+
+                <!-- Feature 5: Reports & Analytics -->
+                <div class="sh-feat-card reveal-on-scroll stagger-5">
+                    <div class="sh-feat-icon blue">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                    </div>
+                    <h3 class="sh-feat-title">Reports & Analytics</h3>
+                    <p class="sh-feat-desc">
+                        Gain actionable insights through executive distribution dashboards, salary breakdowns, and exportable audit reports.
+                    </p>
+                </div>
+
+                <!-- Feature 6: Enterprise Security -->
+                <div class="sh-feat-card reveal-on-scroll stagger-6">
+                    <div class="sh-feat-icon navy">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                    </div>
+                    <h3 class="sh-feat-title">Enterprise Security</h3>
+                    <p class="sh-feat-desc">
+                        Protect payroll integrity via PBKDF2 hashing, TOTP/Email MFA, Biba Integrity Model, and Clark-Wilson dual-control.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====================================================================
+         4. ABOUT OUR TEAM SECTION
+         ==================================================================== -->
+    <section class="sh-team-section" id="about">
+        <div class="sh-container">
+            <div class="sh-center reveal-on-scroll">
+                <span class="sh-section-tag">About Our Team</span>
+                <h2 class="sh-section-title">People-first thinking, behind every detail.</h2>
+                <p class="sh-section-desc">
+                    SEPS is designed to support modern workforce administration through organised employee information, secure payroll operations and reliable management workflows.
+                </p>
+            </div>
+
+            <!-- Large Team Collaboration Banner (Reference Match) -->
+            <div class="sh-team-hero-img-wrap reveal-on-scroll">
+                <img src="~/images/home/seps-team-engineering.webp" alt="SEPS Corporate Team Collaboration" class="sh-team-hero-img" onerror="this.src='/images/home/seps-team-engineering.jpg'" />
+            </div>
+
+            <!-- 4 Distinct Team Focus Cards (Reference Match) -->
+            <div class="sh-team-grid">
+                <!-- Team 1: Product & Platform -->
+                <div class="sh-team-card reveal-on-scroll stagger-1">
+                    <div class="sh-team-avatar-banner" style="background: #E8F3FF;">
+                        <img src="~/images/home/seps-team-product.webp" alt="Product & Platform" class="sh-team-avatar-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+                        <span class="sh-team-initials" style="color: #1858C8; display: none;">PM</span>
+                    </div>
+                    <div class="sh-team-card-body">
+                        <h4 class="sh-team-category">Product & Platform</h4>
+                        <div class="sh-team-role">Architecture & Experience</div>
+                        <p class="sh-team-desc">
+                            Focuses on user journey simplification, intuitive navigation, and responsive accessibility across desktop and mobile.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Team 2: Engineering -->
+                <div class="sh-team-card reveal-on-scroll stagger-2">
+                    <div class="sh-team-avatar-banner" style="background: #E6F7F3;">
+                        <img src="~/images/home/seps-team-engineering.webp" alt="Core Engineering" class="sh-team-avatar-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+                        <span class="sh-team-initials" style="color: #08A77B; display: none;">ENG</span>
+                    </div>
+                    <div class="sh-team-card-body">
+                        <h4 class="sh-team-category">Core Engineering</h4>
+                        <div class="sh-team-role">ASP.NET Core & SQL Server</div>
+                        <p class="sh-team-desc">
+                            Builds dependable backend services, transaction isolation, mathematical calculation precision, and database reliability.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Team 3: Customer Support -->
+                <div class="sh-team-card reveal-on-scroll stagger-3">
+                    <div class="sh-team-avatar-banner" style="background: #F3EAFD;">
+                        <img src="~/images/home/seps-team-support.webp" alt="Customer Success" class="sh-team-avatar-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+                        <span class="sh-team-initials" style="color: #7E42CE; display: none;">CS</span>
+                    </div>
+                    <div class="sh-team-card-body">
+                        <h4 class="sh-team-category">Client Operations</h4>
+                        <div class="sh-team-role">Support & Assistance</div>
+                        <p class="sh-team-desc">
+                            Assists administrative teams with account onboarding, payroll cycle configuration, and ongoing operational questions.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Team 4: Security & Governance -->
+                <div class="sh-team-card reveal-on-scroll stagger-4">
+                    <div class="sh-team-avatar-banner" style="background: #FEF6E7;">
+                        <img src="~/images/home/seps-team-security.webp" alt="Security & Governance" class="sh-team-avatar-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+                        <span class="sh-team-initials" style="color: #D97706; display: none;">SEC</span>
+                    </div>
+                    <div class="sh-team-card-body">
+                        <h4 class="sh-team-category">Security & Governance</h4>
+                        <div class="sh-team-role">Integrity & Compliance</div>
+                        <p class="sh-team-desc">
+                            Enforces Biba integrity axioms, dual-control validation, audit log immutability, and enterprise data security.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====================================================================
+         5. HOW SEPS WORKS SECTION
+         ==================================================================== -->
+    <section class="sh-works-section" id="how-it-works">
+        <div class="sh-container">
+            <div class="sh-center reveal-on-scroll">
+                <span class="sh-section-tag">How SEPS Works</span>
+                <h2 class="sh-section-title">A simpler way to get things done.</h2>
+                <p class="sh-section-desc">
+                    From getting started to managing workforce information, SEPS provides an organised experience for everyday workplace operations.
+                </p>
+            </div>
+
+            <!-- 3 Step Cards -->
+            <div class="sh-steps-grid">
+                <!-- Step 1 -->
+                <div class="sh-step-card reveal-on-scroll stagger-1">
+                    <span class="sh-step-num">Step 01</span>
+                    <h3 class="sh-step-title">Create or Activate Your Account</h3>
+                    <p class="sh-step-desc">
+                        Get started through the approved employee registration or account activation process with encrypted credentials and MFA enrollment.
+                    </p>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="sh-step-card reveal-on-scroll stagger-2">
+                    <span class="sh-step-num">Step 02</span>
+                    <h3 class="sh-step-title">Manage Your Workplace Information</h3>
+                    <p class="sh-step-desc">
+                        Maintain departmental records, employee designations, working hours, and shift attendance in an integrated directory.
+                    </p>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="sh-step-card reveal-on-scroll stagger-3">
+                    <span class="sh-step-num">Step 03</span>
+                    <h3 class="sh-step-title">Access Secure Payroll & Services</h3>
+                    <p class="sh-step-desc">
+                        Compute salaries, approve leave requests, review itemised payslips, and verify dual-control compliance according to your assigned role.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Visual Horizontal Process Diagram -->
+            <div class="sh-process-diagram">
+                <div class="sh-process-node">
+                    <div class="sh-process-node-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    </div>
+                    <div class="sh-process-node-title">Account Access</div>
+                </div>
+                <div class="sh-process-arrow">➔</div>
+
+                <div class="sh-process-node">
+                    <div class="sh-process-node-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    </div>
+                    <div class="sh-process-node-title">Role-Based Control</div>
+                </div>
+                <div class="sh-process-arrow">➔</div>
+
+                <div class="sh-process-node">
+                    <div class="sh-process-node-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+                    </div>
+                    <div class="sh-process-node-title">Payroll Operations</div>
+                </div>
+                <div class="sh-process-arrow">➔</div>
+
+                <div class="sh-process-node">
+                    <div class="sh-process-node-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                    </div>
+                    <div class="sh-process-node-title">Security & Audit</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====================================================================
+         6. SECURITY AND TRUST SECTION
+         ==================================================================== -->
+    <section class="sh-security-section" id="security">
+        <div class="sh-container">
+            <div class="sh-security-grid">
+                <div class="reveal-slide-left">
+                    <span class="sh-section-tag">Security & Trust</span>
+                    <h2 class="sh-section-title">Built on multi-layer integrity standards.</h2>
+                    <p class="sh-section-desc">
+                        Sensitive employee records and financial transactions are protected through strict mathematical integrity axioms, dual controls, and immutable auditing.
+                    </p>
+
+                    <div class="sh-security-feature-list">
+                        <div class="sh-sec-item">
+                            <div class="sh-sec-item-icon">✓</div>
+                            <div>
+                                <h4 class="sh-sec-item-title">Biba Integrity Model</h4>
+                                <p class="sh-sec-item-desc">Strict No-Write-Up / No-Read-Down enforcement on sensitive records.</p>
+                            </div>
+                        </div>
+
+                        <div class="sh-sec-item">
+                            <div class="sh-sec-item-icon">✓</div>
+                            <div>
+                                <h4 class="sh-sec-item-title">Clark-Wilson Dual Control</h4>
+                                <p class="sh-sec-item-desc">Separation of Duties (SoD) ensures payroll batches require independent review.</p>
+                            </div>
+                        </div>
+
+                        <div class="sh-sec-item">
+                            <div class="sh-sec-item-icon">✓</div>
+                            <div>
+                                <h4 class="sh-sec-item-title">Multi-Factor Authentication</h4>
+                                <p class="sh-sec-item-desc">App-based TOTP and Email OTP challenges prevent unauthorized account access.</p>
+                            </div>
+                        </div>
+
+                        <div class="sh-sec-item">
+                            <div class="sh-sec-item-icon">✓</div>
+                            <div>
+                                <h4 class="sh-sec-item-title">Comprehensive Audit Trail</h4>
+                                <p class="sh-sec-item-desc">Every view, edit, and approval is logged with client IP, timestamp, and user identity.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Concept Illustration -->
+                <div class="sh-sec-illustration-wrap reveal-slide-right">
+                    <img src="~/images/home/seps-security.webp" alt="SEPS Enterprise Cybersecurity Architecture" class="sh-sec-illustration" onerror="this.src='/images/home/seps-security.jpg'" />
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====================================================================
+         7. USER FEEDBACK AND TESTIMONIALS SECTION
+         ==================================================================== -->
+    <section class="sh-feedback-section" id="feedback">
+        <div class="sh-container">
+            <div class="sh-center reveal-on-scroll">
+                <span class="sh-section-tag">User Feedback</span>
+                <h2 class="sh-section-title">What Our Users Say</h2>
+                <p class="sh-section-desc">
+                    Feedback helps us understand how the platform supports everyday workplace operations.
+                </p>
+            </div>
+
+            <!-- Professional Feedback Showcase Carousel (10 Entries) -->
+            <div class="sh-feedback-carousel-wrapper" id="shFeedbackCarouselWrapper">
+                <div class="sh-feedback-carousel" id="shFeedbackCarousel" aria-roledescription="carousel" aria-label="Enterprise Testimonials Carousel">
+                    <div class="sh-carousel-viewport">
+                        <div class="sh-carousel-track" id="shCarouselTrack">
+                            @if (Model.FeaturedFeedback != null && Model.FeaturedFeedback.Any())
+                            {
+                                int slideIndex = 0;
+                                foreach (var item in Model.FeaturedFeedback.Take(10))
+                                {
+                                    <div class="sh-carousel-slide" role="group" aria-roledescription="slide" aria-label="Testimonial @(slideIndex + 1) of 10" data-index="@slideIndex">
+                                        <div class="sh-test-card">
+                                            <div class="sh-test-card-top">
+                                                <div class="sh-test-rating-wrap">
+                                                    <div class="sh-test-rating" aria-label="Rated @item.Rating out of 5 stars">
+                                                        @for (int i = 0; i < item.Rating; i++)
+                                                        {
+                                                            <span>★</span>
+                                                        }
+                                                    </div>
+                                                    @if (item.Status == "Demonstration Entry")
+                                                    {
+                                                        <span class="sh-demo-badge" title="Demonstration sample entry for platform evaluation">Demo Entry</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="sh-verified-badge" title="Verified enterprise user feedback">✓ Verified</span>
+                                                    }
+                                                </div>
+                                                <p class="sh-test-quote">"@item.Message"</p>
+                                            </div>
+                                            <div class="sh-test-author">
+                                                <div class="sh-test-avatar">
+                                                    @(item.FullName.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(n => n.FirstOrDefault()).Take(2).Aggregate("", (c, ch) => c + ch))
+                                                </div>
+                                                <div class="sh-test-author-info">
+                                                    <div class="sh-test-name">@item.FullName</div>
+                                                    <div class="sh-test-role">@item.Category</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    slideIndex++;
+                                }
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Carousel Controls -->
+                    <div class="sh-carousel-controls">
+                        <button type="button" class="sh-carousel-btn sh-carousel-prev" id="shCarouselPrev" aria-label="Previous feedback reviews">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="15 18 9 12 15 6"></polyline>
+                            </svg>
+                        </button>
+
+                        <div class="sh-carousel-dots" id="shCarouselDots" role="tablist" aria-label="Feedback pagination indicators"></div>
+
+                        <button type="button" class="sh-carousel-btn sh-carousel-next" id="shCarouselNext" aria-label="Next feedback reviews">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="9 18 15 12 9 6"></polyline>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Working Interactive Feedback Submission Form -->
+            <div class="sh-feedback-form-box reveal-on-scroll">
+                <div style="text-align: center; margin-bottom: 24px;">
+                    <h3 style="font-size: 20px; font-weight: 700; color: var(--sh-text-main); margin: 0 0 6px;">Share Your Platform Feedback</h3>
+                    <p style="font-size: 13.5px; color: var(--sh-text-secondary); margin: 0;">Have a suggestion or experience to share? Your input directly shapes our future improvements.</p>
+                </div>
+
+                <div id="shFeedbackAlert" style="display: none;"></div>
+
+                <form id="shFeedbackForm" asp-controller="Home" asp-action="SubmitFeedback" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div class="sh-form-row">
+                        <div class="sh-form-group">
+                            <label class="sh-label" for="fbName">Full Name *</label>
+                            <input type="text" id="fbName" name="FullName" class="sh-input" placeholder="e.g. Kabir Verma" required maxlength="100" />
+                        </div>
+                        <div class="sh-form-group">
+                            <label class="sh-label" for="fbEmail">Work Email *</label>
+                            <input type="email" id="fbEmail" name="WorkEmail" class="sh-input" placeholder="e.g. kabir.verma@company.com" required maxlength="150" />
+                        </div>
+                    </div>
+
+                    <div class="sh-form-row">
+                        <div class="sh-form-group">
+                            <label class="sh-label" for="fbCategory">Feedback Category *</label>
+                            <select id="fbCategory" name="Category" class="sh-select" required>
+                                <option value="General Feedback">General Feedback</option>
+                                <option value="User Experience">User Experience (UI/UX)</option>
+                                <option value="Employee Management">Employee Management</option>
+                                <option value="Payroll Operations">Payroll Operations</option>
+                                <option value="Security & Governance">Security & Governance</option>
+                                <option value="Technical Support">Technical Support</option>
+                            </select>
+                        </div>
+
+                        <div class="sh-form-group">
+                            <label class="sh-label">Overall Rating *</label>
+                            <div class="sh-rating-select">
+                                <input type="hidden" id="feedbackRatingInput" name="Rating" value="5" />
+                                <span class="sh-rating-option selected" data-value="1">★</span>
+                                <span class="sh-rating-option selected" data-value="2">★</span>
+                                <span class="sh-rating-option selected" data-value="3">★</span>
+                                <span class="sh-rating-option selected" data-value="4">★</span>
+                                <span class="sh-rating-option selected" data-value="5">★</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sh-form-group">
+                        <label class="sh-label" for="fbMessage">Feedback Message *</label>
+                        <textarea id="fbMessage" name="Message" class="sh-textarea" rows="4" placeholder="Tell us about your experience using the SEPS workforce portal..." required maxlength="2000"></textarea>
+                    </div>
+
+                    <div style="text-align: right;">
+                        <button type="submit" class="sh-btn sh-btn-teal">
+                            Submit Feedback
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====================================================================
+         8. CONTACT US SECTION
+         ==================================================================== -->
+    <section class="sh-contact-section" id="contact">
+        <div class="sh-container">
+            <div class="sh-contact-grid">
+                <!-- Left Details -->
+                <div>
+                    <span class="sh-section-tag">Contact Us</span>
+                    <h2 class="sh-section-title">Let's start a conversation.</h2>
+                    <p class="sh-section-desc">
+                        Have a question about SEPS? Send us a message and the appropriate support or administrative team will assist you.
+                    </p>
+
+                    <div class="sh-contact-card">
+                        <div class="sh-contact-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                        </div>
+                        <div>
+                            <div class="sh-contact-label">Official Support Email</div>
+                            <div class="sh-contact-val">support@seps-payroll.internal</div>
+                        </div>
+                    </div>
+
+                    <div class="sh-contact-card">
+                        <div class="sh-contact-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                        </div>
+                        <div>
+                            <div class="sh-contact-label">Help Desk Support</div>
+                            <div class="sh-contact-val">+91 11 4000 7000 (Mon – Fri, 9am – 6pm IST)</div>
+                        </div>
+                    </div>
+
+                    <div class="sh-contact-card">
+                        <div class="sh-contact-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                        </div>
+                        <div>
+                            <div class="sh-contact-label">Corporate Office</div>
+                            <div class="sh-contact-val">SEPS Enterprise Technology Center, Bangalore, India</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Working Contact Form -->
+                <div class="sh-contact-form-wrap">
+                    <h3 style="font-size: 20px; font-weight: 700; color: var(--sh-text-main); margin: 0 0 8px;">Send a Direct Message</h3>
+                    <p style="font-size: 13.5px; color: var(--sh-text-secondary); margin: 0 0 24px;">Complete the form below and your inquiry will be routed securely to the appropriate support desk.</p>
+
+                    <div id="shContactAlert" style="display: none;"></div>
+
+                    <form id="shContactForm" asp-controller="Home" asp-action="SubmitContact" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <div class="sh-form-row">
+                            <div class="sh-form-group">
+                                <label class="sh-label" for="cntName">Full Name *</label>
+                                <input type="text" id="cntName" name="FullName" class="sh-input" placeholder="e.g. Aarav Mehta" required maxlength="100" />
+                            </div>
+                            <div class="sh-form-group">
+                                <label class="sh-label" for="cntEmail">Work Email *</label>
+                                <input type="email" id="cntEmail" name="WorkEmail" class="sh-input" placeholder="e.g. aarav.mehta@company.com" required maxlength="150" />
+                            </div>
+                        </div>
+
+                        <div class="sh-form-group">
+                            <label class="sh-label" for="cntSubject">Subject *</label>
+                            <input type="text" id="cntSubject" name="Subject" class="sh-input" placeholder="e.g. Inquiry regarding payroll tax deductions or portal onboarding" required maxlength="200" />
+                        </div>
+
+                        <div class="sh-form-group">
+                            <label class="sh-label" for="cntMessage">Message *</label>
+                            <textarea id="cntMessage" name="Message" class="sh-textarea" rows="4" placeholder="Please provide specific details so we can assist you promptly..." required maxlength="2000"></textarea>
+                        </div>
+
+                        <button type="submit" class="sh-btn sh-btn-teal" style="width: 100%;">
+                            Send Message
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====================================================================
+         9. HELP AND SUPPORT / FAQ SECTION
+         ==================================================================== -->
+    <section class="sh-faq-section" id="faq">
+        <div class="sh-container">
+            <div class="sh-faq-grid">
+                <!-- Left Support Intro Box -->
+                <div class="sh-faq-sidebar">
+                    <span class="sh-section-tag">Help & Support</span>
+                    <h2 class="sh-section-title" style="font-size: 28px;">How Can We Help?</h2>
+                    <p class="sh-section-desc" style="font-size: 14.5px; margin-bottom: 24px;">
+                        Find quick answers to common workforce questions, or reach out directly if you need hands-on assistance.
+                    </p>
+
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <a href="#contact" class="sh-btn sh-btn-teal" style="width: 100%;">
+                            Contact Support
+                        </a>
+                        <a asp-controller="Account" asp-action="Login" class="sh-btn sh-btn-navy-outline" style="width: 100%;">
+                            Sign In to Portal
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Right Accordion -->
+                <div class="sh-accordion">
+                    <!-- Q1 -->
+                    <div class="sh-accordion-item active">
+                        <button type="button" class="sh-accordion-btn" aria-expanded="true">
+                            <span>How do I sign in to the SEPS platform?</span>
+                            <span class="sh-accordion-icon">▼</span>
+                        </button>
+                        <div class="sh-accordion-content">
+                            Click the <strong>Sign In</strong> button on the top right navigation. Enter your registered username (or work email) and password. If your account has Multi-Factor Authentication (MFA) enabled, you will be prompted to enter your 6-digit TOTP authenticator code or Email verification OTP.
+                        </div>
+                    </div>
+
+                    <!-- Q2 -->
+                    <div class="sh-accordion-item">
+                        <button type="button" class="sh-accordion-btn" aria-expanded="false">
+                            <span>How do I activate an employee account?</span>
+                            <span class="sh-accordion-icon">▼</span>
+                        </button>
+                        <div class="sh-accordion-content">
+                            Click <strong>Create Account</strong> to access the approved employee registration form. Provide your official employee credentials and set a strong password. Once verified by your HR Manager or Administrator, your account will be activated.
+                        </div>
+                    </div>
+
+                    <!-- Q3 -->
+                    <div class="sh-accordion-item">
+                        <button type="button" class="sh-accordion-btn" aria-expanded="false">
+                            <span>Where can I access my salary and payslip records?</span>
+                            <span class="sh-accordion-icon">▼</span>
+                        </button>
+                        <div class="sh-accordion-content">
+                            After signing in, navigate to the <strong>Payroll</strong> section via the main sidebar. You can view your latest salary structures, view itemized monthly deductions, and print or download official payslips.
+                        </div>
+                    </div>
+
+                    <!-- Q4 -->
+                    <div class="sh-accordion-item">
+                        <button type="button" class="sh-accordion-btn" aria-expanded="false">
+                            <span>How do I submit leave requests or check attendance?</span>
+                            <span class="sh-accordion-icon">▼</span>
+                        </button>
+                        <div class="sh-accordion-content">
+                            Navigate to <strong>Attendance</strong> to record and view your working logs, or visit <strong>Leaves</strong> to check your remaining annual/sick leave balances and submit a formal request for manager approval.
+                        </div>
+                    </div>
+
+                    <!-- Q5 -->
+                    <div class="sh-accordion-item">
+                        <button type="button" class="sh-accordion-btn" aria-expanded="false">
+                            <span>What should I do if I forget my password?</span>
+                            <span class="sh-accordion-icon">▼</span>
+                        </button>
+                        <div class="sh-accordion-content">
+                            On the Sign In page, click the <strong>Forgot Password?</strong> link. Enter your registered email address to receive a secure time-limited password reset link, or contact your System Administrator.
+                        </div>
+                    </div>
+
+                    <!-- Q6 -->
+                    <div class="sh-accordion-item">
+                        <button type="button" class="sh-accordion-btn" aria-expanded="false">
+                            <span>How does the Biba & Clark-Wilson integrity system protect me?</span>
+                            <span class="sh-accordion-icon">▼</span>
+                        </button>
+                        <div class="sh-accordion-content">
+                            SEPS enforces formal integrity models in the backend. Lower-integrity roles cannot modify approved financial records (Biba No-Write-Up), and all sensitive payroll updates require dual-control authorization (Clark-Wilson Separation of Duties) to prevent unauthorized tampering.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====================================================================
+         10. SIGN-IN AND ACCOUNT CREATION CARDS
+         ==================================================================== -->
+    <section class="sh-auth-info-section">
+        <div class="sh-container">
+            <div class="sh-auth-info-grid">
+                <!-- Card 1: Sign In -->
+                <div class="sh-auth-card">
+                    <div>
+                        <span class="sh-section-tag" style="background: #E8F3FF; color: #1858C8;">Existing Users</span>
+                        <h3 class="sh-auth-card-title">Authorized Portal Sign In</h3>
+                        <p class="sh-auth-card-desc">
+                            Access the existing SEPS application through your authorised account. Your available administrative modules, attendance records, and payroll privileges depend on your assigned organizational role.
+                        </p>
+                    </div>
+                    <div>
+                        <a asp-controller="Account" asp-action="Login" class="sh-btn sh-btn-teal" style="width: 100%;">
+                            Sign In to Portal →
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Card 2: Create Account -->
+                <div class="sh-auth-card">
+                    <div>
+                        <span class="sh-section-tag">New Personnel</span>
+                        <h3 class="sh-auth-card-title">Employee Account Activation</h3>
+                        <p class="sh-auth-card-desc">
+                            Activate your employee profile using the approved registration or activation process. Connect your official credentials to view compensation statements and submit leave requests.
+                        </p>
+                    </div>
+                    <div>
+                        <a asp-controller="Account" asp-action="Register" class="sh-btn sh-btn-navy-outline" style="width: 100%;">
+                            Create / Activate Account →
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====================================================================
+         11. FINAL CALL-TO-ACTION (FULL WIDTH NAVY)
+         ==================================================================== -->
+    <section class="sh-cta-section">
+        <div class="sh-container reveal-scale">
+            <h2 class="sh-cta-title">Make workplace management simpler with SEPS.</h2>
+            <p class="sh-cta-desc">
+                Bring employee management, payroll operations, attendance governance and verified security together in one integrated platform.
+            </p>
+            <div class="sh-cta-buttons">
+                <a asp-controller="Account" asp-action="Login" class="sh-btn sh-btn-teal">
+                    Sign In
+                </a>
+                <a asp-controller="Account" asp-action="Register" class="sh-btn sh-btn-outline">
+                    Create Account
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====================================================================
+         12. PROFESSIONAL FOOTER
+         ==================================================================== -->
+    <footer class="sh-footer">
+        <div class="sh-container">
+            <div class="sh-footer-grid">
+                <!-- Brand Summary -->
+                <div>
+                    <img src="~/images/seps-logo.png" alt="SEPS Logo" class="sh-footer-logo-img" />
+                    <p class="sh-footer-desc">
+                        Secure Employee Payroll Management System (SEPS) is an enterprise workforce governance platform combining role-based access, attendance tracking, and formal integrity models.
+                    </p>
+                </div>
+
+                <!-- Navigation Links -->
+                <div>
+                    <h4 class="sh-footer-col-title">Navigation</h4>
+                    <ul class="sh-footer-links">
+                        <li><a href="#hero" class="sh-footer-link">Home</a></li>
+                        <li><a href="#about" class="sh-footer-link">About Our Team</a></li>
+                        <li><a href="#features" class="sh-footer-link">Platform Features</a></li>
+                        <li><a href="#how-it-works" class="sh-footer-link">How It Works</a></li>
+                        <li><a href="#feedback" class="sh-footer-link">Feedback</a></li>
+                        <li><a href="#contact" class="sh-footer-link">Contact Us</a></li>
+                        <li><a href="#faq" class="sh-footer-link">Help & FAQs</a></li>
+                    </ul>
+                </div>
+
+                <!-- Modules & Capabilities -->
+                <div>
+                    <h4 class="sh-footer-col-title">Core Modules</h4>
+                    <ul class="sh-footer-links">
+                        <li><a asp-controller="Account" asp-action="Login" class="sh-footer-link">Employee Directory</a></li>
+                        <li><a asp-controller="Account" asp-action="Login" class="sh-footer-link">Payroll Engine</a></li>
+                        <li><a asp-controller="Account" asp-action="Login" class="sh-footer-link">Attendance Logs</a></li>
+                        <li><a asp-controller="Account" asp-action="Login" class="sh-footer-link">Leave Approvals</a></li>
+                        <li><a asp-controller="Account" asp-action="Login" class="sh-footer-link">Salary Structures</a></li>
+                        <li><a asp-controller="Account" asp-action="Login" class="sh-footer-link">Audit Trail Explorer</a></li>
+                    </ul>
+                </div>
+
+                <!-- Security & Governance -->
+                <div>
+                    <h4 class="sh-footer-col-title">Security Standards</h4>
+                    <ul class="sh-footer-links">
+                        <li><span class="sh-footer-link" style="cursor: default;">Biba Integrity Axioms</span></li>
+                        <li><span class="sh-footer-link" style="cursor: default;">Clark-Wilson Dual Control</span></li>
+                        <li><span class="sh-footer-link" style="cursor: default;">PBKDF2 Password Hashing</span></li>
+                        <li><span class="sh-footer-link" style="cursor: default;">Multi-Factor Authentication</span></li>
+                        <li><span class="sh-footer-link" style="cursor: default;">Role-Based Access Control</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Footer Bottom Strip -->
+            <div class="sh-footer-bottom">
+                <div>
+                    &copy; @year Secure Employee Payroll Management System (SEPS). All rights reserved.
+                </div>
+                <div style="display: flex; gap: 20px;">
+                    <a asp-controller="Account" asp-action="Login" class="sh-footer-link">Privacy Policy</a>
+                    <a asp-controller="Account" asp-action="Login" class="sh-footer-link">Terms & Conditions</a>
+                    <a asp-controller="Account" asp-action="Login" class="sh-footer-link">Security Disclosures</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Dedicated Homepage JavaScript -->
+    <script src="~/js/home.js" asp-append-version="true"></script>
+</body>
+</html>

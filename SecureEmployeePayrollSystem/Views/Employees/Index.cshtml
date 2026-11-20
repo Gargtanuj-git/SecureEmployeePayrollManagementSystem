@@ -1,0 +1,219 @@
+@model EmployeeListViewModel
+
+@{
+    ViewData["Title"] = "Employees";
+    bool canManage = User.IsInRole("Admin") || User.IsInRole("HR Manager");
+}
+
+<div class="page-hero-banner" style="background-image: url('/images/employees-banner.jpg');">
+    <div class="page-hero-content">
+        <h1 style="font-size: 26px; font-weight: 600; margin-bottom: 6px; color: #ffffff !important;">
+            Employee Directory
+        </h1>
+        <p style="color: #e2e8f0 !important; margin: 0; font-size: 14px;">
+            Comprehensive workforce management, departmental assignments, compensation grading, and personnel records.
+        </p>
+    </div>
+
+    @if (canManage)
+    {
+        <div class="page-hero-actions">
+            <a asp-controller="Employees" asp-action="Create" class="btn btn-primary" style="box-shadow: 0 2px 6px rgba(0,0,0,0.3);">
+                + Add Employee
+            </a>
+        </div>
+    }
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<div class="content-card">
+    <div class="card-header">
+        <div>
+            <h2>Workforce Records</h2>
+            <p>Showing @Model.Items.Count of @Model.TotalCount total registered employees</p>
+        </div>
+    </div>
+
+    <!-- FILTER BAR -->
+    <form asp-controller="Employees" asp-action="Index" method="get" class="filter-bar">
+        <div class="form-group" style="flex: 2;">
+            <label for="search">Search</label>
+            <input type="text" id="search" name="search" value="@Model.Search" class="form-control" placeholder="Search by name, email, or phone..." />
+        </div>
+
+        <div class="form-group" style="flex: 1;">
+            <label for="departmentId">Department</label>
+            <select id="departmentId" name="departmentId" class="form-control filter-select">
+                <option value="">All Departments</option>
+                @foreach (var dept in Model.Departments)
+                {
+                    <option value="@dept.DepartmentId" selected="@(Model.DepartmentId == dept.DepartmentId ? "selected" : null)">
+                        @dept.DepartmentName
+                    </option>
+                }
+            </select>
+        </div>
+
+        <div class="form-group" style="flex: 1;">
+            <label for="status">Status</label>
+            <select id="status" name="status" class="form-control filter-select">
+                <option value="">All Statuses</option>
+                <option value="Active" selected="@(Model.Status == "Active" ? "selected" : null)">Active</option>
+                <option value="Inactive" selected="@(Model.Status == "Inactive" ? "selected" : null)">Inactive</option>
+                <option value="On Leave" selected="@(Model.Status == "On Leave" ? "selected" : null)">On Leave</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="margin-bottom: 2px;">Filter</button>
+        <a asp-controller="Employees" asp-action="Index" class="btn btn-secondary" style="margin-bottom: 2px;">Reset</a>
+    </form>
+
+    <!-- DATA TABLE -->
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Employee Name</th>
+                    <th>Contact</th>
+                    <th>Department</th>
+                    <th>Designation</th>
+                    <th>Grade</th>
+                    <th>Status</th>
+                    <th style="text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Items.Any())
+                {
+                    foreach (var emp in Model.Items)
+                    {
+                        <tr>
+                            <td><strong>#@emp.EmployeeId</strong></td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <img src="/images/@(emp.EmployeeId % 2 == 0 ? "avatar-2.jpg" : "avatar-1.jpg")" alt="Avatar" class="table-avatar-img" />
+                                    <div>
+                                        <a asp-controller="Employees" asp-action="Details" asp-route-id="@emp.EmployeeId" style="font-weight: 500; color: var(--primary); text-decoration: none;">
+                                            @emp.FirstName @emp.LastName
+                                        </a>
+                                        <div style="font-size: 11px; color: var(--text-secondary);">Emp #@emp.EmployeeId</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div>@emp.Email</div>
+                                <div style="font-size: 12px; color: var(--text-secondary);">@emp.Phone</div>
+                            </td>
+                            <td>@(emp.Department?.DepartmentName ?? "N/A")</td>
+                            <td>@(emp.Designation?.DesignationName ?? "N/A")</td>
+                            <td>@(emp.SalaryStructure?.StructureName ?? "N/A")</td>
+                            <td>
+                                @if (emp.EmploymentStatus == "Active")
+                                {
+                                    <span class="status-badge status-success">Active</span>
+                                }
+                                else if (emp.EmploymentStatus == "On Leave")
+                                {
+                                    <span class="status-badge status-warning">On Leave</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge status-danger">Inactive</span>
+                                }
+                            </td>
+                            <td style="text-align: right; white-space: nowrap;">
+                                <a asp-controller="Employees" asp-action="Details" asp-route-id="@emp.EmployeeId" class="btn btn-secondary btn-sm">
+                                    View
+                                </a>
+
+                                @if (canManage)
+                                {
+                                    <a asp-controller="Employees" asp-action="Edit" asp-route-id="@emp.EmployeeId" class="btn btn-secondary btn-sm">
+                                        Edit
+                                    </a>
+
+                                    <form asp-controller="Employees" asp-action="ToggleStatus" asp-route-id="@emp.EmployeeId" method="post" style="display:inline;" onsubmit="return confirm('Toggle status for @emp.FirstName @emp.LastName?');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-secondary btn-sm">
+                                            @(emp.EmploymentStatus == "Active" ? "Deactivate" : "Activate")
+                                        </button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="8">
+                            <div class="empty-state">
+                                <h3>No employees found</h3>
+                                <p>No employee records matched your filter criteria.</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- PAGINATION -->
+    @if (Model.TotalPages > 1)
+    {
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-top: 1px solid var(--border-color);">
+            <div style="font-size: 13px; color: var(--text-secondary);">
+                Page @Model.Page of @Model.TotalPages
+            </div>
+            <div style="display: flex; gap: 6px;">
+                @if (Model.Page > 1)
+                {
+                    <a asp-controller="Employees" asp-action="Index" 
+                       asp-route-page="@(Model.Page - 1)" 
+                       asp-route-search="@Model.Search" 
+                       asp-route-departmentId="@Model.DepartmentId" 
+                       asp-route-status="@Model.Status" 
+                       class="btn btn-secondary btn-sm">&larr; Previous</a>
+                }
+                @for (int p = 1; p <= Model.TotalPages; p++)
+                {
+                    if (p == Model.Page)
+                    {
+                        <span class="btn btn-primary btn-sm">@p</span>
+                    }
+                    else if (p <= 3 || p > Model.TotalPages - 2 || Math.Abs(p - Model.Page) <= 1)
+                    {
+                        <a asp-controller="Employees" asp-action="Index" 
+                           asp-route-page="@p" 
+                           asp-route-search="@Model.Search" 
+                           asp-route-departmentId="@Model.DepartmentId" 
+                           asp-route-status="@Model.Status" 
+                           class="btn btn-secondary btn-sm">@p</a>
+                    }
+                }
+                @if (Model.Page < Model.TotalPages)
+                {
+                    <a asp-controller="Employees" asp-action="Index" 
+                       asp-route-page="@(Model.Page + 1)" 
+                       asp-route-search="@Model.Search" 
+                       asp-route-departmentId="@Model.DepartmentId" 
+                       asp-route-status="@Model.Status" 
+                       class="btn btn-secondary btn-sm">Next &rarr;</a>
+                }
+            </div>
+        </div>
+    }
+</div>

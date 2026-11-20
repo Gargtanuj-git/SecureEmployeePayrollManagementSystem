@@ -1,0 +1,43 @@
+-- ============================================================================
+-- SEPS BIBA INTEGRITY MODEL DATABASE ROLLBACK SCRIPT
+-- Target Database: SecureEmployeePayrollDB
+-- Platform: Microsoft SQL Server 2022
+-- ============================================================================
+
+USE SecureEmployeePayrollDB;
+GO
+
+SET ANSI_NULLS ON;
+SET QUOTED_IDENTIFIER ON;
+GO
+
+IF EXISTS (SELECT * FROM sys.tables WHERE name = 'INTEGRITY_SECURITY_AUDIT')
+BEGIN
+    DROP TABLE dbo.INTEGRITY_SECURITY_AUDIT;
+    PRINT 'Dropped table INTEGRITY_SECURITY_AUDIT.';
+END
+GO
+
+IF EXISTS (SELECT * FROM sys.tables WHERE name = 'INTEGRITY_CLASSIFICATION_HISTORY')
+BEGIN
+    DROP TABLE dbo.INTEGRITY_CLASSIFICATION_HISTORY;
+    PRINT 'Dropped table INTEGRITY_CLASSIFICATION_HISTORY.';
+END
+GO
+
+IF EXISTS (SELECT * FROM sys.tables WHERE name = 'OBJECT_INTEGRITY_CLASSIFICATION')
+BEGIN
+    DROP TABLE dbo.OBJECT_INTEGRITY_CLASSIFICATION;
+    PRINT 'Dropped table OBJECT_INTEGRITY_CLASSIFICATION.';
+END
+GO
+
+IF EXISTS (SELECT * FROM sys.tables WHERE name = 'USER_INTEGRITY_CLASSIFICATION')
+BEGIN
+    DROP TABLE dbo.USER_INTEGRITY_CLASSIFICATION;
+    PRINT 'Dropped table USER_INTEGRITY_CLASSIFICATION.';
+END
+GO
+
+PRINT 'SEPS Biba Integrity Model Database Rollback Completed Successfully.';
+GO

@@ -1,0 +1,248 @@
+@model SecureEmployeePayrollSystem.Models.Payroll
+
+@{
+    ViewData["Title"] = $"Payslip - {Model.Employee?.FirstName} {Model.Employee?.LastName} ({Model.PayPeriodStart:MMM yyyy})";
+    decimal net = Model.NetSalary ?? (Model.GrossSalary - Model.TotalDeductions);
+    var earnings = Model.PayrollItems.Where(i => i.ItemType == "Earning").ToList();
+    var deductions = Model.PayrollItems.Where(i => i.ItemType == "Deduction").ToList();
+}
+
+<style>
+    @@media print {
+        .app-sidebar, .app-header, .page-header-actions, .no-print {
+            display: none !important;
+        }
+        .app-main, .app-content {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #ffffff !important;
+        }
+        .payslip-container {
+            border: none !important;
+            box-shadow: none !important;
+            width: 100% !important;
+            padding: 0 !important;
+            background: #ffffff !important;
+            color: #000000 !important;
+        }
+    }
+</style>
+
+<div class="page-header no-print" style="margin-bottom: 20px;">
+    <div>
+        <h1 style="color: var(--text-primary);">Employee Payslip</h1>
+        <p style="color: var(--text-secondary);">Official statement of earnings and deductions for @Model.PayPeriodStart.ToString("MMMM yyyy").</p>
+    </div>
+    <div class="page-header-actions" style="display: flex; gap: 8px;">
+        <a asp-controller="Payroll" asp-action="Index" class="btn btn-secondary">
+            &larr; Back to Payroll
+        </a>
+        <button type="button" class="btn btn-primary" onclick="window.print();">
+            🖨️ Print / Save as PDF
+        </button>
+    </div>
+</div>
+
+<div class="content-card payslip-container" style="max-width: 850px; margin: 0 auto; padding: 40px; background: var(--surface-bg); color: var(--text-primary); border: 1px solid var(--border-color); box-shadow: var(--card-shadow);">
+    
+    <!-- COMPANY HEADER -->
+    <div style="border-bottom: 2px solid var(--primary); padding-bottom: 20px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-start;">
+        <div>
+            <div style="font-size: 24px; font-weight: 700; color: var(--primary); letter-spacing: -0.5px;">
+                <span>S</span><span style="color:#ef4444;">E</span><span style="color:#f59e0b;">P</span><span style="color:#10b981;">S</span> ENTERPRISES
+            </div>
+            <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
+                Secure Employee Payroll Management System<br />
+                Technology Park, Sector 62, Noida, Uttar Pradesh 201309
+            </div>
+        </div>
+        <div style="text-align: right;">
+            <div style="font-size: 18px; font-weight: 600; text-transform: uppercase; color: var(--text-primary);">
+                SALARY PAYSLIP
+            </div>
+            <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
+                Pay Period: <strong style="color: var(--text-primary);">@Model.PayPeriodStart.ToString("dd MMM yyyy") - @Model.PayPeriodEnd.ToString("dd MMM yyyy")</strong><br />
+                Slip Ref: #@Model.PayrollId | Date: @Model.GeneratedDate.ToString("dd MMM yyyy")
+            </div>
+        </div>
+    </div>
+
+    <!-- EMPLOYEE & BANK DETAILS GRID -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; background: var(--surface-secondary); padding: 16px; border-radius: 8px; margin-bottom: 24px; font-size: 13px; border: 1px solid var(--border-color);">
+        <div>
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <td style="color: var(--text-secondary); padding: 4px 0;">Employee Name:</td>
+                    <td style="font-weight: 600; color: var(--text-primary); padding: 4px 0;">@Model.Employee?.FirstName @Model.Employee?.LastName</td>
+                </tr>
+                <tr>
+                    <td style="color: var(--text-secondary); padding: 4px 0;">Employee ID:</td>
+                    <td style="font-weight: 600; color: var(--text-primary); padding: 4px 0;">#@Model.EmployeeId</td>
+                </tr>
+                <tr>
+                    <td style="color: var(--text-secondary); padding: 4px 0;">Department:</td>
+                    <td style="color: var(--text-primary); padding: 4px 0;">@(Model.Employee?.Department?.DepartmentName ?? "N/A")</td>
+                </tr>
+                <tr>
+                    <td style="color: var(--text-secondary); padding: 4px 0;">Designation:</td>
+                    <td style="color: var(--text-primary); padding: 4px 0;">@(Model.Employee?.Designation?.DesignationName ?? "N/A")</td>
+                </tr>
+            </table>
+        </div>
+        <div>
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <td style="color: var(--text-secondary); padding: 4px 0;">Date of Joining:</td>
+                    <td style="color: var(--text-primary); padding: 4px 0;">@(Model.Employee?.HireDate.ToString("dd MMM yyyy") ?? "-")</td>
+                </tr>
+                <tr>
+                    <td style="color: var(--text-secondary); padding: 4px 0;">Bank Name:</td>
+                    <td style="color: var(--text-primary); padding: 4px 0;">@(Model.Employee?.BankAccount?.RoleName ?? "Direct Deposit")</td>
+                </tr>
+                <tr>
+                    <td style="color: var(--text-secondary); padding: 4px 0;">Bank Account #:</td>
+                    <td style="color: var(--text-primary); padding: 4px 0;">
+                        @{
+                            var acct = Model.Employee?.BankAccount?.AccountNumber;
+                            var masked = !string.IsNullOrEmpty(acct) && acct.Length > 4 ? "•••• " + acct.Substring(acct.Length - 4) : acct ?? "On Record";
+                        }
+                        @masked
+                    </td>
+                </tr>
+                <tr>
+                    <td style="color: var(--text-secondary); padding: 4px 0;">Salary Grade:</td>
+                    <td style="color: var(--text-primary); padding: 4px 0;">@(Model.Employee?.SalaryStructure?.StructureName ?? "Standard")</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- EARNINGS & DEDUCTIONS DUAL TABLE -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--border-color); margin-bottom: 24px;">
+        
+        <!-- EARNINGS COLUMN -->
+        <div style="border-right: 1px solid var(--border-color);">
+            <div style="background: var(--surface-secondary); padding: 10px 14px; font-weight: 600; font-size: 13px; text-transform: uppercase; color: var(--text-primary); border-bottom: 1px solid var(--border-color);">
+                Earnings Particulars
+            </div>
+            <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                <thead>
+                    <tr style="border-bottom: 1px solid var(--divider-color); color: var(--text-secondary);">
+                        <th style="text-align: left; padding: 8px 14px;">Component</th>
+                        <th style="text-align: right; padding: 8px 14px;">Amount (₹)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (earnings.Any())
+                    {
+                        int eIdx = 1;
+                        foreach (var e in earnings)
+                        {
+                            <tr style="border-bottom: 1px solid var(--divider-color); color: var(--text-primary);">
+                                <td style="padding: 8px 14px;">@(eIdx == 1 ? "Basic Salary" : $"Allowance #{eIdx - 1}")</td>
+                                <td style="text-align: right; padding: 8px 14px;">₹@((e.CalculationBasis ?? 0).ToString("N2"))</td>
+                            </tr>
+                            eIdx++;
+                        }
+                    }
+                    else
+                    {
+                        <tr style="border-bottom: 1px solid var(--divider-color); color: var(--text-primary);">
+                            <td style="padding: 8px 14px;">Basic Salary</td>
+                            <td style="text-align: right; padding: 8px 14px;">₹@Model.GrossSalary.ToString("N2")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- DEDUCTIONS COLUMN -->
+        <div>
+            <div style="background: var(--surface-secondary); padding: 10px 14px; font-weight: 600; font-size: 13px; text-transform: uppercase; color: var(--text-primary); border-bottom: 1px solid var(--border-color);">
+                Deductions Particulars
+            </div>
+            <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                <thead>
+                    <tr style="border-bottom: 1px solid var(--divider-color); color: var(--text-secondary);">
+                        <th style="text-align: left; padding: 8px 14px;">Component</th>
+                        <th style="text-align: right; padding: 8px 14px;">Amount (₹)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (deductions.Any())
+                    {
+                        int dIdx = 1;
+                        foreach (var d in deductions)
+                        {
+                            <tr style="border-bottom: 1px solid var(--divider-color); color: var(--text-primary);">
+                                <td style="padding: 8px 14px;">Deduction / Tax #{dIdx}</td>
+                                <td style="text-align: right; padding: 8px 14px;">₹@((d.CalculationBasis ?? 0).ToString("N2"))</td>
+                            </tr>
+                            dIdx++;
+                        }
+                    }
+                    else
+                    {
+                        <tr style="border-bottom: 1px solid var(--divider-color);">
+                            <td style="padding: 8px 14px; color: var(--text-muted);">Nil Deductions</td>
+                            <td style="text-align: right; padding: 8px 14px; color: var(--text-primary);">₹0.00</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <!-- TOTALS ROW -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--border-color); border-top: none; background: var(--surface-secondary); font-weight: 600; font-size: 13px; margin-bottom: 24px;">
+        <div style="padding: 10px 14px; border-right: 1px solid var(--border-color); display: flex; justify-content: space-between; color: var(--text-primary);">
+            <span>TOTAL GROSS EARNINGS:</span>
+            <span style="color: var(--primary);">₹@Model.GrossSalary.ToString("N2")</span>
+        </div>
+        <div style="padding: 10px 14px; display: flex; justify-content: space-between; color: var(--text-primary);">
+            <span>TOTAL DEDUCTIONS:</span>
+            <span style="color: var(--danger);">₹@Model.TotalDeductions.ToString("N2")</span>
+        </div>
+    </div>
+
+    <!-- NET PAY CALLOUT -->
+    <div style="background: var(--success-bg); border: 2px solid var(--success); border-radius: 8px; padding: 18px 24px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 36px;">
+        <div>
+            <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--success); font-weight: 700;">
+                NET TAKE-HOME DISBURSEMENT
+            </div>
+            <div style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">
+                Direct Bank Transfer Status: <strong style="color: var(--text-primary);">@Model.PayrollStatus</strong>
+            </div>
+        </div>
+        <div style="text-align: right;">
+            <div style="font-size: 28px; font-weight: 700; color: var(--success); line-height: 1;">
+                ₹@net.ToString("N2")
+            </div>
+        </div>
+    </div>
+
+    <!-- SIGNATURE & AUTHORIZATION SECTION -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; padding-top: 40px; border-top: 1px dashed var(--divider-color); font-size: 12px; color: var(--text-secondary);">
+        <div style="text-align: center; width: 200px;">
+            <div style="height: 40px;"></div>
+            <div style="border-top: 1px solid var(--border-color); padding-top: 4px; font-weight: 500; color: var(--text-primary);">
+                Employee Signature
+            </div>
+        </div>
+        <div style="text-align: center; font-size: 11px; color: var(--text-muted);">
+            System-generated electronic payroll record.<br />
+            Secure Employee Payroll Management System (SEPS)
+        </div>
+        <div style="text-align: center; width: 220px;">
+            <div style="height: 40px; color: var(--primary); font-family: monospace; font-size: 13px; font-weight: bold; line-height: 40px;">
+                [DIGITALLY VERIFIED]
+            </div>
+            <div style="border-top: 1px solid var(--border-color); padding-top: 4px; font-weight: 500; color: var(--text-primary);">
+                Authorized Payroll Officer
+            </div>
+        </div>
+    </div>
+
+</div>

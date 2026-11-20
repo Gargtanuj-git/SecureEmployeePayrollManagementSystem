@@ -1,0 +1,305 @@
+@model IEnumerable<SecureEmployeePayrollSystem.Models.Leave>
+
+@{
+    ViewData["Title"] = "Leave Management";
+    bool isStaffOrManager = (bool)ViewBag.IsStaffOrManager;
+    var pendingQueue = (List<Leave>)ViewBag.PendingQueue;
+    var employees = (List<Employee>)ViewBag.Employees;
+    int? myEmpId = (int?)ViewBag.MyEmployeeId;
+    int currentPage = (int)ViewBag.Page;
+    int totalPages = (int)ViewBag.TotalPages;
+}
+
+<div class="page-hero-banner" style="background-image: url('/images/leaves-banner.jpg');">
+    <div class="page-hero-content">
+        <h1 style="font-size: 26px; font-weight: 600; margin-bottom: 6px; color: #ffffff !important;">
+            Leave & Time-Off Management
+        </h1>
+        <p style="color: #e2e8f0 !important; margin: 0; font-size: 14px;">
+            Apply for personal time-off, monitor approved leave entitlements, and review staff vacation workflows.
+        </p>
+    </div>
+    <div class="page-hero-actions">
+        <a href="#applySection" class="btn btn-primary" style="box-shadow: 0 2px 6px rgba(0,0,0,0.3);">
+            + Request Time Off
+        </a>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<!-- PENDING APPROVAL QUEUE (MANAGERS ONLY) -->
+@if (isStaffOrManager && pendingQueue.Any())
+{
+    <div class="content-card" style="margin-bottom: 24px; border-left: 4px solid var(--warning);">
+        <div class="card-header" style="padding: 16px 20px; border-bottom: 1px solid var(--divider-color); display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h2 style="font-size: 16px; font-weight: 600; margin: 0; color: var(--warning);">Pending Approvals Queue</h2>
+                <p style="font-size: 12px; color: var(--text-secondary); margin: 2px 0 0;">@pendingQueue.Count request(s) awaiting administrative review</p>
+            </div>
+            <span class="status-badge status-warning">Action Required</span>
+        </div>
+
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Applicant</th>
+                        <th>Leave Type</th>
+                        <th>Duration</th>
+                        <th>Days</th>
+                        <th>Reason</th>
+                        <th style="text-align: right;">Review Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in pendingQueue)
+                    {
+                        <tr>
+                            <td><strong>#@p.LeaveId</strong></td>
+                            <td>
+                                <div><strong>@p.Employee?.FirstName @p.Employee?.LastName</strong></div>
+                                <div style="font-size: 12px; color: var(--seps-text-secondary);">@(p.Employee?.Department?.DepartmentName ?? "N/A")</div>
+                            </td>
+                            <td><span class="status-badge status-neutral">@p.LeaveType</span></td>
+                            <td>@p.StartDate.ToString("dd MMM") - @p.EndDate.ToString("dd MMM yyyy")</td>
+                            <td><strong>@p.NumberOfDays.ToString("0")</strong> day(s)</td>
+                            <td>@(string.IsNullOrWhiteSpace(p.Reason) ? "No reason specified." : p.Reason)</td>
+                            <td style="text-align: right; white-space: nowrap;">
+                                <form asp-controller="Leave" asp-action="Approve" asp-route-id="@p.LeaveId" method="post" style="display:inline;">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-primary btn-sm" onclick="return confirm('Approve leave application #@p.LeaveId?');">
+                                        Approve
+                                    </button>
+                                </form>
+
+                                <form asp-controller="Leave" asp-action="Reject" asp-route-id="@p.LeaveId" method="post" style="display:inline; margin-left: 4px;">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Reject leave application #@p.LeaveId?');">
+                                        Reject
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+<!-- APPLY FOR LEAVE CARD -->
+<div id="applySection" class="content-card" style="margin-bottom: 24px;">
+    <div class="card-header" style="padding: 16px 20px; border-bottom: 1px solid var(--divider-color);">
+        <h2 style="font-size: 15px; font-weight: 600; margin: 0; color: var(--text-primary);">Apply for Leave</h2>
+        <p style="font-size: 12px; color: var(--text-secondary); margin: 2px 0 0;">Submit a new time-off application for manager approval</p>
+    </div>
+
+    <form asp-controller="Leave" asp-action="Apply" method="post" style="padding: 20px;">
+        @Html.AntiForgeryToken()
+
+        <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
+            
+            @if (isStaffOrManager)
+            {
+                <div class="form-group">
+                    <label for="employeeId">Applying For</label>
+                    <select name="employeeId" id="employeeId" class="form-control">
+                        <option value="">Myself (@User.Identity?.Name)</option>
+                        @foreach (var emp in employees)
+                        {
+                            <option value="@emp.EmployeeId">@emp.FirstName @emp.LastName (#@emp.EmployeeId)</option>
+                        }
+                    </select>
+                </div>
+            }
+
+            <div class="form-group">
+                <label for="leaveType">Leave Type *</label>
+                <select name="leaveType" id="leaveType" class="form-control" required>
+                    <option value="Casual Leave">Casual Leave (CL)</option>
+                    <option value="Sick Leave">Sick Leave (SL)</option>
+                    <option value="Earned / Annual Leave">Earned / Annual Leave (EL)</option>
+                    <option value="Maternity / Paternity Leave">Maternity / Paternity Leave</option>
+                    <option value="Unpaid Leave">Unpaid Leave</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="startDate">Start Date *</label>
+                <input type="date" name="startDate" id="startDate" class="form-control" value="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+            </div>
+
+            <div class="form-group">
+                <label for="endDate">End Date *</label>
+                <input type="date" name="endDate" id="endDate" class="form-control" value="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+            </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 16px;">
+            <label for="reason">Reason / Notes</label>
+            <textarea name="reason" id="reason" class="form-control" rows="2" placeholder="Brief explanation for time-off request..."></textarea>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end;">
+            <button type="submit" class="btn btn-primary">
+                Submit Leave Application
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- LEAVE DIRECTORY TABLE -->
+<div class="content-card">
+    <div class="card-header">
+        <div>
+            <h2>Leave Application History</h2>
+            <p>Showing @Model.Count() requests (Total recorded: @ViewBag.TotalCount)</p>
+        </div>
+    </div>
+
+    <!-- FILTER BAR -->
+    <form asp-controller="Leave" asp-action="Index" method="get" class="filter-bar">
+        <div class="form-group">
+            <label for="status">Status</label>
+            <select id="status" name="status" class="form-control filter-select">
+                <option value="">All Statuses</option>
+                <option value="Pending" selected="@(ViewBag.Status == "Pending" ? "selected" : null)">Pending</option>
+                <option value="Approved" selected="@(ViewBag.Status == "Approved" ? "selected" : null)">Approved</option>
+                <option value="Rejected" selected="@(ViewBag.Status == "Rejected" ? "selected" : null)">Rejected</option>
+                <option value="Cancelled" selected="@(ViewBag.Status == "Cancelled" ? "selected" : null)">Cancelled</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="type">Leave Type</label>
+            <select id="type" name="type" class="form-control filter-select">
+                <option value="">All Types</option>
+                <option value="Casual Leave" selected="@(ViewBag.Type == "Casual Leave" ? "selected" : null)">Casual Leave</option>
+                <option value="Sick Leave" selected="@(ViewBag.Type == "Sick Leave" ? "selected" : null)">Sick Leave</option>
+                <option value="Earned / Annual Leave" selected="@(ViewBag.Type == "Earned / Annual Leave" ? "selected" : null)">Earned / Annual Leave</option>
+                <option value="Unpaid Leave" selected="@(ViewBag.Type == "Unpaid Leave" ? "selected" : null)">Unpaid Leave</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="margin-bottom: 2px;">Filter</button>
+        <a asp-controller="Leave" asp-action="Index" class="btn btn-secondary" style="margin-bottom: 2px;">Reset</a>
+    </form>
+
+    <!-- DATA TABLE -->
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Applicant</th>
+                    <th>Type</th>
+                    <th>Date Period</th>
+                    <th>Days</th>
+                    <th>Reason</th>
+                    <th>Status</th>
+                    <th style="text-align: right;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Any())
+                {
+                    foreach (var l in Model)
+                    {
+                        <tr>
+                            <td><strong>#@l.LeaveId</strong></td>
+                            <td>
+                                <div><strong>@l.Employee?.FirstName @l.Employee?.LastName</strong></div>
+                                <div style="font-size: 12px; color: var(--seps-text-secondary);">@(l.Employee?.Department?.DepartmentName ?? "N/A")</div>
+                            </td>
+                            <td>@l.LeaveType</td>
+                            <td>@l.StartDate.ToString("dd MMM yyyy") - @l.EndDate.ToString("dd MMM yyyy")</td>
+                            <td><strong>@l.NumberOfDays.ToString("0")</strong> day(s)</td>
+                            <td>@(string.IsNullOrWhiteSpace(l.Reason) ? "-" : l.Reason)</td>
+                            <td>
+                                @if (l.LeaveStatus == "Approved")
+                                {
+                                    <span class="status-badge status-success">Approved</span>
+                                }
+                                else if (l.LeaveStatus == "Pending")
+                                {
+                                    <span class="status-badge status-warning">Pending</span>
+                                }
+                                else if (l.LeaveStatus == "Rejected")
+                                {
+                                    <span class="status-badge status-danger">Rejected</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge status-neutral">@l.LeaveStatus</span>
+                                }
+                            </td>
+                            <td style="text-align: right; white-space: nowrap;">
+                                @if (l.LeaveStatus == "Pending" && (myEmpId.HasValue && l.EmployeeId == myEmpId.Value || isStaffOrManager))
+                                {
+                                    <form asp-controller="Leave" asp-action="Cancel" asp-route-id="@l.LeaveId" method="post" style="display:inline;">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-secondary btn-sm" onclick="return confirm('Cancel this leave request?');">
+                                            Cancel
+                                        </button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="8">
+                            <div class="empty-state">
+                                <h3>No leave records found</h3>
+                                <p>No applications match your filter criteria.</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- PAGINATION -->
+    @if (totalPages > 1)
+    {
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-top: 1px solid var(--border-color);">
+            <div style="font-size: 13px; color: var(--text-secondary);">
+                Page @currentPage of @totalPages
+            </div>
+            <div style="display: flex; gap: 6px;">
+                @if (currentPage > 1)
+                {
+                    <a asp-controller="Leave" asp-action="Index" 
+                       asp-route-page="@(currentPage - 1)" 
+                       asp-route-status="@ViewBag.Status" 
+                       asp-route-type="@ViewBag.Type" 
+                       class="btn btn-secondary btn-sm">&larr; Previous</a>
+                }
+                @if (currentPage < totalPages)
+                {
+                    <a asp-controller="Leave" asp-action="Index" 
+                       asp-route-page="@(currentPage + 1)" 
+                       asp-route-status="@ViewBag.Status" 
+                       asp-route-type="@ViewBag.Type" 
+                       class="btn btn-secondary btn-sm">Next &rarr;</a>
+                }
+            </div>
+        </div>
+    }
+</div>

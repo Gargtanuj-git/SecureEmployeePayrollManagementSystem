@@ -1,0 +1,137 @@
+@model IEnumerable<SecureEmployeePayrollSystem.Models.Department>
+
+@{
+    ViewData["Title"] = "Departments";
+    bool canManage = User.IsInRole("Admin") || User.IsInRole("HR Manager");
+}
+
+<div class="page-hero-banner" style="background-image: url('/images/employees-banner.jpg');">
+    <div class="page-hero-content">
+        <h1 style="font-size: 26px; font-weight: 600; margin-bottom: 6px; color: #ffffff !important;">
+            Organizational Departments
+        </h1>
+        <p style="color: #e2e8f0 !important; margin: 0; font-size: 14px;">
+            Configure organizational divisions, facilities, staffing structures, and departmental heads.
+        </p>
+    </div>
+
+    @if (canManage)
+    {
+        <div class="page-hero-actions">
+            <a asp-controller="Departments" asp-action="Create" class="btn btn-primary" style="box-shadow: 0 2px 6px rgba(0,0,0,0.3);">
+                + Add Department
+            </a>
+        </div>
+    }
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<div class="content-card">
+    <div class="card-header">
+        <div>
+            <h2>Department Directory</h2>
+            <p>@Model.Count() department(s) configured in system</p>
+        </div>
+    </div>
+
+    <!-- SEARCH -->
+    <form asp-controller="Departments" asp-action="Index" method="get" class="filter-bar">
+        <div class="form-group" style="flex: 2;">
+            <label for="search">Search</label>
+            <input type="text" id="search" name="search" value="@ViewBag.Search" class="form-control" placeholder="Search by department name or location..." />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Search</button>
+        <a asp-controller="Departments" asp-action="Index" class="btn btn-secondary">Clear</a>
+    </form>
+
+    <!-- TABLE -->
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Department Name</th>
+                    <th>Location</th>
+                    <th>Staff Assigned</th>
+                    <th>Status</th>
+                    <th style="text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Any())
+                {
+                    foreach (var dept in Model)
+                    {
+                        <tr>
+                            <td><strong>#@dept.DepartmentId</strong></td>
+                            <td>
+                                <a asp-controller="Departments" asp-action="Details" asp-route-id="@dept.DepartmentId" style="font-weight: 500; color: var(--primary); text-decoration: none;">
+                                    @dept.DepartmentName
+                                </a>
+                            </td>
+                            <td>@dept.Location</td>
+                            <td>
+                                <span class="status-badge status-neutral">
+                                    @(dept.Employees?.Count ?? 0) member(s)
+                                </span>
+                            </td>
+                            <td>
+                                @if (dept.DepartmentStatus == "Active")
+                                {
+                                    <span class="status-badge status-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge status-danger">Inactive</span>
+                                }
+                            </td>
+                            <td style="text-align: right; white-space: nowrap;">
+                                <a asp-controller="Departments" asp-action="Details" asp-route-id="@dept.DepartmentId" class="btn btn-secondary btn-sm">
+                                    View
+                                </a>
+
+                                @if (canManage)
+                                {
+                                    <a asp-controller="Departments" asp-action="Edit" asp-route-id="@dept.DepartmentId" class="btn btn-secondary btn-sm">
+                                        Edit
+                                    </a>
+
+                                    <form asp-controller="Departments" asp-action="ToggleStatus" asp-route-id="@dept.DepartmentId" method="post" style="display:inline;" onsubmit="return confirm('Toggle status for department @dept.DepartmentName?');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-secondary btn-sm">
+                                            @(dept.DepartmentStatus == "Active" ? "Deactivate" : "Activate")
+                                        </button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6">
+                            <div class="empty-state">
+                                <h3>No departments found</h3>
+                                <p>No department records matching your query.</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

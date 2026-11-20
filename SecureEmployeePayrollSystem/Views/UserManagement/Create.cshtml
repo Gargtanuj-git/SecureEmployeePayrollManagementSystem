@@ -1,0 +1,299 @@
+@model SecureEmployeePayrollSystem.ViewModels.CreateUserViewModel
+
+@{
+    ViewData["Title"] = "Create New User";
+    var roles = ViewBag.Roles as List<SecureEmployeePayrollSystem.Models.AppRole> ?? new();
+    var employees = ViewBag.Employees as List<SecureEmployeePayrollSystem.Models.Employee> ?? new();
+    var departments = ViewBag.Departments as List<SecureEmployeePayrollSystem.Models.Department> ?? new();
+}
+
+<div class="page-hero-banner" style="background-image: url('/images/reports/analytics-banner.jpg');">
+    <div class="page-hero-content">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+            <a asp-action="Index" style="color: #cbd5e1; text-decoration: none; font-size: 13px; display: inline-flex; align-items: center; gap: 4px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                Back to User Directory
+            </a>
+        </div>
+        <h1 style="font-size: 26px; font-weight: 600; margin-bottom: 6px; color: #ffffff !important;">
+            Create New User Account
+        </h1>
+        <p style="color: #e2e8f0 !important; margin: 0; font-size: 14px;">
+            Add a new user to the Secure Employee Payroll System with enterprise role permissions and credentials.
+        </p>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1.6fr; gap: 28px; margin-top: 24px; align-items: start;">
+    <!-- LEFT SIDE: BENEFITS & TEAM COLLABORATION -->
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+        <div class="content-card" style="padding: 0; overflow: hidden;">
+            <div style="height: 180px; width: 100%; overflow: hidden; position: relative;">
+                <img src="/images/auth/team-collaboration.jpg" alt="Team Collaboration" style="width: 100%; height: 100%; object-fit: cover;" />
+                <div style="position: absolute; inset: 0; background: linear-gradient(180deg, transparent 40%, rgba(15, 23, 42, 0.8) 100%);"></div>
+                <div style="position: absolute; bottom: 16px; left: 20px; right: 20px; color: #ffffff;">
+                    <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; color: #38bdf8;">Identity & Access</div>
+                    <div style="font-size: 18px; font-weight: 600;">Enterprise User Governance</div>
+                </div>
+            </div>
+            
+            <div style="padding: 24px;">
+                <h3 style="font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 16px;">
+                    Account Security & Permissions
+                </h3>
+
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+                    <div style="display: flex; gap: 14px; align-items: flex-start;">
+                        <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(29, 78, 216, 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <div style="font-weight: 600; font-size: 14px; color: var(--text-primary);">Role-Based Authorization</div>
+                            <div style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">Assign granular roles (Admin, HR Manager, Payroll Officer, Employee) enforced via server-side policies.</div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 14px; align-items: flex-start;">
+                        <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(5, 150, 105, 0.1); color: var(--success); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <div style="font-weight: 600; font-size: 14px; color: var(--text-primary);">PBKDF2 Cryptographic Salt</div>
+                            <div style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">All passwords are hashed with 100,000 iterations of HMAC-SHA256, resistant against brute-force attacks.</div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 14px; align-items: flex-start;">
+                        <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(217, 119, 6, 0.1); color: var(--warning); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                        </div>
+                        <div>
+                            <div style="font-weight: 600; font-size: 14px; color: var(--text-primary);">Audit Trail Integration</div>
+                            <div style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">User creation and role assignment are timestamped and logged with the acting administrator's ID and IP.</div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 14px; align-items: flex-start;">
+                        <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(124, 58, 237, 0.1); color: #7c3aed; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <div style="font-weight: 600; font-size: 14px; color: var(--text-primary);">Optional Employee Linkage</div>
+                            <div style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">Connect directly to a registered personnel record for self-service payslip retrieval and leave management.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT SIDE: USER CREATION FORM -->
+    <div class="content-card" style="padding: 28px;">
+        <div style="margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border-color);">
+            <h2 style="font-size: 20px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">
+                User Details & Security Credentials
+            </h2>
+            <p style="font-size: 13px; color: var(--text-muted); margin: 0;">
+                Fill in the required information below to create a new system identity.
+            </p>
+        </div>
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-danger" style="margin-bottom: 20px;">
+                <div asp-validation-summary="All" style="font-size: 13px;"></div>
+            </div>
+        }
+
+        <form asp-action="Create" method="post" autocomplete="off">
+            @Html.AntiForgeryToken()
+
+            <!-- 2-COLUMN GRID -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                <!-- Full Name -->
+                <div class="form-group">
+                    <label asp-for="FullName" class="form-label" style="font-weight: 500; font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">
+                        Full Name <span style="color: var(--danger);">*</span>
+                    </label>
+                    <input asp-for="FullName" class="form-control" placeholder="e.g. Ananya Patel" required />
+                    <span asp-validation-for="FullName" class="text-danger" style="font-size: 12px;"></span>
+                </div>
+
+                <!-- Linked Employee -->
+                <div class="form-group">
+                    <label asp-for="EmployeeId" class="form-label" style="font-weight: 500; font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">
+                        Employee (Optional)
+                    </label>
+                    <select asp-for="EmployeeId" class="form-control filter-select">
+                        <option value="">-- None (Standalone System Account) --</option>
+                        @foreach (var emp in employees)
+                        {
+                            <option value="@emp.EmployeeId">@emp.FirstName @emp.LastName (ID: #@emp.EmployeeId - @(emp.Department?.DepartmentName ?? "N/A"))</option>
+                        }
+                    </select>
+                    <span asp-validation-for="EmployeeId" class="text-danger" style="font-size: 12px;"></span>
+                </div>
+
+                <!-- Username -->
+                <div class="form-group">
+                    <label asp-for="Username" class="form-label" style="font-weight: 500; font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">
+                        Username <span style="color: var(--danger);">*</span>
+                    </label>
+                    <div style="position: relative;">
+                        <input asp-for="Username" class="form-control" placeholder="e.g. ananya.patel" required style="padding-left: 36px;" />
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted);">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </div>
+                    <span asp-validation-for="Username" class="text-danger" style="font-size: 12px;"></span>
+                </div>
+
+                <!-- Phone -->
+                <div class="form-group">
+                    <label asp-for="PhoneNumber" class="form-label" style="font-weight: 500; font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">
+                        Phone Number (Optional)
+                    </label>
+                    <div style="position: relative;">
+                        <input asp-for="PhoneNumber" class="form-control" placeholder="+91 98765 43210" style="padding-left: 36px;" />
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted);">
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                        </svg>
+                    </div>
+                    <span asp-validation-for="PhoneNumber" class="text-danger" style="font-size: 12px;"></span>
+                </div>
+
+                <!-- Email -->
+                <div class="form-group">
+                    <label asp-for="Email" class="form-label" style="font-weight: 500; font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">
+                        Email Address <span style="color: var(--danger);">*</span>
+                    </label>
+                    <div style="position: relative;">
+                        <input asp-for="Email" type="email" class="form-control" placeholder="ananya.patel@company.com" required style="padding-left: 36px;" />
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted);">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                            <polyline points="22,6 12,13 2,6"></polyline>
+                        </svg>
+                    </div>
+                    <span asp-validation-for="Email" class="text-danger" style="font-size: 12px;"></span>
+                </div>
+
+                <!-- Department -->
+                <div class="form-group">
+                    <label asp-for="DepartmentId" class="form-label" style="font-weight: 500; font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">
+                        Department (Optional)
+                    </label>
+                    <select asp-for="DepartmentId" class="form-control filter-select">
+                        <option value="">-- Select Department --</option>
+                        @foreach (var dept in departments)
+                        {
+                            <option value="@dept.DepartmentId">@dept.DepartmentName</option>
+                        }
+                    </select>
+                    <span asp-validation-for="DepartmentId" class="text-danger" style="font-size: 12px;"></span>
+                </div>
+
+                <!-- Password -->
+                <div class="form-group">
+                    <label asp-for="Password" class="form-label" style="font-weight: 500; font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">
+                        Password <span style="color: var(--danger);">*</span>
+                    </label>
+                    <div style="position: relative;">
+                        <input asp-for="Password" type="password" class="form-control" placeholder="Min. 6 characters" required style="padding-left: 36px;" />
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted);">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                    </div>
+                    <span asp-validation-for="Password" class="text-danger" style="font-size: 12px;"></span>
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="form-group">
+                    <label asp-for="ConfirmPassword" class="form-label" style="font-weight: 500; font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">
+                        Confirm Password <span style="color: var(--danger);">*</span>
+                    </label>
+                    <div style="position: relative;">
+                        <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Re-enter password" required style="padding-left: 36px;" />
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted);">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                    </div>
+                    <span asp-validation-for="ConfirmPassword" class="text-danger" style="font-size: 12px;"></span>
+                </div>
+
+                <!-- Role Selection -->
+                <div class="form-group">
+                    <label asp-for="RoleId" class="form-label" style="font-weight: 500; font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">
+                        Role Assignment <span style="color: var(--danger);">*</span>
+                    </label>
+                    <select asp-for="RoleId" class="form-control filter-select" required>
+                        <option value="">-- Choose Role --</option>
+                        @foreach (var r in roles)
+                        {
+                            <option value="@r.RoleId">@r.RoleName</option>
+                        }
+                    </select>
+                    <span asp-validation-for="RoleId" class="text-danger" style="font-size: 12px;"></span>
+                </div>
+
+                <!-- Account Status -->
+                <div class="form-group">
+                    <label asp-for="AccountStatus" class="form-label" style="font-weight: 500; font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">
+                        Initial Account Status
+                    </label>
+                    <select asp-for="AccountStatus" class="form-control filter-select">
+                        <option value="Active">Active (Immediate Login Enabled)</option>
+                        <option value="Inactive">Inactive (Suspended)</option>
+                    </select>
+                    <span asp-validation-for="AccountStatus" class="text-danger" style="font-size: 12px;"></span>
+                </div>
+            </div>
+
+            <!-- SECURITY NOTICE BOX -->
+            <div style="background: rgba(29, 78, 216, 0.06); border: 1px solid rgba(29, 78, 216, 0.2); border-radius: 8px; padding: 14px 18px; margin-bottom: 24px; display: flex; gap: 12px; align-items: center;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--primary); flex-shrink: 0;">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                <div style="font-size: 13px; color: var(--text-secondary); line-height: 1.4;">
+                    <strong>Security Policy Notice:</strong> Passwords are cryptographically salted and must be at least 6 characters. Credentials become active immediately upon creation and will be audited under your administrative ID.
+                </div>
+            </div>
+
+            <!-- FORM ACTIONS -->
+            <div style="display: flex; justify-content: flex-end; align-items: center; gap: 12px; padding-top: 16px; border-top: 1px solid var(--border-color);">
+                <a asp-action="Index" class="btn btn-secondary" style="padding: 10px 20px;">
+                    Cancel
+                </a>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 24px; display: inline-flex; align-items: center; gap: 8px; font-weight: 500;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="8.5" cy="7" r="4"></circle>
+                        <line x1="20" y1="8" x2="20" y2="14"></line>
+                        <line x1="23" y1="11" x2="17" y2="11"></line>
+                    </svg>
+                    Create User Account
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

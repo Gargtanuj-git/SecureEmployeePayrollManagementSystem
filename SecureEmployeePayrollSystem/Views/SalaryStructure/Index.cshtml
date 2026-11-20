@@ -1,0 +1,128 @@
+@model IEnumerable<SecureEmployeePayrollSystem.Models.SalaryStructure>
+
+@{
+    ViewData["Title"] = "Salary Structures";
+    bool canManage = User.IsInRole("Admin") || User.IsInRole("Payroll Manager");
+}
+
+<div class="page-hero-banner" style="background-image: url('/images/payroll-banner.jpg');">
+    <div class="page-hero-content">
+        <h1 style="font-size: 26px; font-weight: 600; margin-bottom: 6px; color: #ffffff !important;">
+            Salary Structures & Pay Grades
+        </h1>
+        <p style="color: #e2e8f0 !important; margin: 0; font-size: 14px;">
+            Configure base compensation levels, allowances, earnings, and statutory deduction models.
+        </p>
+    </div>
+
+    @if (canManage)
+    {
+        <div class="page-hero-actions">
+            <a asp-controller="SalaryStructure" asp-action="Create" class="btn btn-primary" style="box-shadow: 0 2px 6px rgba(0,0,0,0.3);">
+                + Create Salary Structure
+            </a>
+        </div>
+    }
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<div class="content-card">
+    <div class="card-header">
+        <div>
+            <h2>Configured Pay Scales</h2>
+            <p>@Model.Count() salary structure models active in the enterprise</p>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Structure / Grade Name</th>
+                    <th>Basic Monthly Salary</th>
+                    <th>Effective Period</th>
+                    <th>Components</th>
+                    <th>Employees</th>
+                    <th>Status</th>
+                    <th style="text-align: right;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Any())
+                {
+                    foreach (var s in Model)
+                    {
+                        <tr>
+                            <td><strong>#@s.SalaryStructureId</strong></td>
+                            <td>
+                                <a asp-controller="SalaryStructure" asp-action="Details" asp-route-id="@s.SalaryStructureId" style="font-weight: 500; color: var(--primary); text-decoration: none;">
+                                    @s.StructureName
+                                </a>
+                            </td>
+                            <td><strong>₹@s.BasicSalary.ToString("N2")</strong></td>
+                            <td>
+                                @s.EffectiveFrom.ToString("dd MMM yyyy") 
+                                @(s.EffectiveTo.HasValue ? $"- {s.EffectiveTo.Value:dd MMM yyyy}" : "(Ongoing)")
+                            </td>
+                            <td>
+                                <span class="status-badge status-neutral">
+                                    @s.SalaryComponents.Count component(s)
+                                </span>
+                            </td>
+                            <td>
+                                <span class="status-badge status-neutral">
+                                    @s.Employees.Count staff
+                                </span>
+                            </td>
+                            <td>
+                                @if (s.Status == "Active")
+                                {
+                                    <span class="status-badge status-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge status-danger">@s.Status</span>
+                                }
+                            </td>
+                            <td style="text-align: right; white-space: nowrap;">
+                                <a asp-controller="SalaryStructure" asp-action="Details" asp-route-id="@s.SalaryStructureId" class="btn btn-secondary btn-sm">
+                                    View & Components
+                                </a>
+                                @if (canManage)
+                                {
+                                    <a asp-controller="SalaryStructure" asp-action="Edit" asp-route-id="@s.SalaryStructureId" class="btn btn-secondary btn-sm">
+                                        Edit
+                                    </a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="8">
+                            <div class="empty-state">
+                                <h3>No salary structures found</h3>
+                                <p>Create your first salary grade to start configuring payroll compensation rules.</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

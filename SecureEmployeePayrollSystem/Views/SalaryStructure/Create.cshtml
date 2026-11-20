@@ -1,0 +1,72 @@
+@model SecureEmployeePayrollSystem.Models.SalaryStructure
+
+@{
+    ViewData["Title"] = "Create Salary Structure";
+}
+
+<div class="page-header">
+    <div>
+        <h1>Create Salary Structure</h1>
+        <p>Define a new compensation model and base salary benchmark.</p>
+    </div>
+    <div class="page-header-actions">
+        <a asp-controller="SalaryStructure" asp-action="Index" class="btn btn-secondary">
+            &larr; Back to Pay Grades
+        </a>
+    </div>
+</div>
+
+<div class="content-card">
+    <div class="card-header">
+        <div>
+            <h2>Grade Information</h2>
+            <p>Enter the base salary specifications.</p>
+        </div>
+    </div>
+
+    <form asp-controller="SalaryStructure" asp-action="Create" method="post" style="padding: 24px;">
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+        <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+            <div class="form-group">
+                <label asp-for="StructureName">Structure / Grade Name *</label>
+                <input asp-for="StructureName" class="form-control" placeholder="e.g. Executive Grade A" />
+                <span asp-validation-for="StructureName" class="field-validation-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="BasicSalary">Basic Monthly Salary (₹) *</label>
+                <input asp-for="BasicSalary" type="number" step="0.01" class="form-control" placeholder="e.g. 75000.00" />
+                <span asp-validation-for="BasicSalary" class="field-validation-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="EffectiveFrom">Effective From *</label>
+                <input asp-for="EffectiveFrom" type="date" class="form-control" />
+                <span asp-validation-for="EffectiveFrom" class="field-validation-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="EffectiveTo">Effective To (Optional)</label>
+                <input asp-for="EffectiveTo" type="date" class="form-control" />
+                <span asp-validation-for="EffectiveTo" class="field-validation-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Status">Status *</label>
+                <select asp-for="Status" class="form-control">
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                </select>
+                <span asp-validation-for="Status" class="field-validation-error"></span>
+            </div>
+        </div>
+
+        <div class="form-actions" style="display: flex; gap: 12px; justify-content: flex-end; padding-top: 16px; border-top: 1px solid var(--seps-border);">
+            <a asp-controller="SalaryStructure" asp-action="Index" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">Create Structure</button>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,201 @@
+@{
+    ViewData["Title"] = "Settings & Security";
+    var user = (UserAccount?)ViewBag.UserAccount;
+}
+
+<div class="page-header">
+    <div>
+        <h1>Settings & System Security</h1>
+        <p>Personal credentials management, system security parameters, and cryptographic specifications.</p>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+
+    <!-- 1. PERSONAL CREDENTIALS / CHANGE PASSWORD -->
+    <div class="content-card">
+        <div class="card-header" style="padding: 16px 20px; border-bottom: 1px solid var(--divider-color);">
+            <div>
+                <h2 style="font-size: 16px; font-weight: 600; margin: 0; color: var(--text-primary);">Change Password</h2>
+                <p style="font-size: 12px; color: var(--text-secondary); margin: 2px 0 0;">Update your credentials for @(user?.Username ?? User.Identity?.Name)</p>
+            </div>
+        </div>
+
+        <form asp-controller="Settings" asp-action="ChangePassword" method="post" style="padding: 20px;">
+            @Html.AntiForgeryToken()
+
+            <div class="form-group" style="margin-bottom: 14px;">
+                <label for="currentPassword">Current Password *</label>
+                <input type="password" name="currentPassword" id="currentPassword" class="form-control" placeholder="Enter your current password..." required />
+            </div>
+
+            <div class="form-group" style="margin-bottom: 14px;">
+                <label for="newPassword">New Password (Min 6 chars) *</label>
+                <input type="password" name="newPassword" id="newPassword" class="form-control" placeholder="Enter new strong password..." required minlength="6" />
+            </div>
+
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label for="confirmPassword">Confirm New Password *</label>
+                <input type="password" name="confirmPassword" id="confirmPassword" class="form-control" placeholder="Re-enter new password..." required minlength="6" />
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%;">
+                Update Password
+            </button>
+        </form>
+    </div>
+
+    <!-- 2. MY IDENTITY & ACCESS SUMMARY -->
+    <div class="content-card">
+        <div class="card-header" style="padding: 16px 20px; border-bottom: 1px solid var(--divider-color);">
+            <div>
+                <h2 style="font-size: 16px; font-weight: 600; margin: 0; color: var(--text-primary);">Identity & Session Info</h2>
+                <p style="font-size: 12px; color: var(--text-secondary); margin: 2px 0 0;">Active authentication session attributes</p>
+            </div>
+        </div>
+
+        <div style="padding: 20px; display: flex; flex-direction: column; gap: 14px; font-size: 14px;">
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-secondary);">Logged-in Identity:</span>
+                <strong style="color: var(--text-primary);">@User.Identity?.Name</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-secondary);">User ID:</span>
+                <code>#@(user?.UserId ?? 0)</code>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-secondary);">Linked Employee:</span>
+                <span style="color: var(--text-primary);">@(user?.Employee != null ? $"{user.Employee.FirstName} {user.Employee.LastName} (#{user.EmployeeId})" : "System Account")</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-secondary);">Assigned Role(s):</span>
+                <span>
+                    @if (user?.UserRoleUsers != null && user.UserRoleUsers.Any())
+                    {
+                        foreach (var ur in user.UserRoleUsers)
+                        {
+                            <span class="status-badge status-neutral" style="margin-left: 4px;">@ur.Role.RoleName</span>
+                        }
+                    }
+                    else
+                    {
+                        <span class="status-badge status-neutral">Authenticated User</span>
+                    }
+                </span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-secondary);">Account Status:</span>
+                <span class="status-badge status-success">@(user?.AccountStatus ?? "Active")</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-secondary);">MFA Status:</span>
+                <span class="status-badge @(user?.MfaEnabled == true ? "status-success" : "status-warning")">
+                    @(user?.MfaEnabled == true ? $"Enrolled ({user.MfaType ?? "TOTP"})" : "Pending Enrollment")
+                </span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-secondary);">Session Expiration:</span>
+                <span style="color: var(--text-primary);">30 minutes (Sliding)</span>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- 2.5 MULTI-FACTOR AUTHENTICATION (MFA / 2FA) ENROLLMENT -->
+<div class="content-card" style="margin-bottom: 24px;">
+    <div class="card-header" style="padding: 16px 20px; border-bottom: 1px solid var(--divider-color); display: flex; align-items: center; justify-content: space-between;">
+        <div>
+            <h2 style="font-size: 16px; font-weight: 600; margin: 0; color: var(--text-primary);">Two-Factor Authentication (2FA / MFA)</h2>
+            <p style="font-size: 12px; color: var(--text-secondary); margin: 2px 0 0;">Mandatory for privileged roles (Admin & Payroll Manager) and available for all employees.</p>
+        </div>
+        <div>
+            @if (user?.MfaEnabled == true)
+            {
+                <span class="status-badge status-success">Active & Protected</span>
+            }
+            else
+            {
+                <span class="status-badge status-warning">Action Recommended</span>
+            }
+        </div>
+    </div>
+
+    <div style="padding: 20px; display: grid; grid-template-columns: 2fr 1fr; gap: 24px; align-items: center;">
+        <div>
+            <h3 style="font-size: 14px; font-weight: 600; margin: 0 0 8px; color: var(--text-primary);">
+                @(user?.MfaEnabled == true ? "Authenticator App is Configured" : "Protect your account with Google Authenticator")
+            </h3>
+            <p style="font-size: 13px; color: var(--text-secondary); margin: 0 0 14px; line-height: 1.5;">
+                Multi-Factor Authentication adds a critical layer of defense by requiring both your password and a time-sensitive 6-digit verification code generated by an RFC 6238 TOTP authenticator app (Google Authenticator, Microsoft Authenticator) or sent to your registered work email.
+            </p>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <a asp-controller="Account" asp-action="EnrollMfa" class="btn btn-primary" style="font-size: 13px; padding: 8px 16px;">
+                    @(user?.MfaEnabled == true ? "🔄 Reconfigure Authenticator / Generate New Keys" : "📱 Setup Authenticator App (TOTP)")
+                </a>
+            </div>
+        </div>
+        <div style="background: var(--surface-secondary); padding: 16px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 12.5px;">
+            <div style="font-weight: 600; color: var(--text-primary); margin-bottom: 6px;">Security Specs:</div>
+            <ul style="margin: 0; padding-left: 18px; color: var(--text-secondary); line-height: 1.6;">
+                <li>RFC 6238 TOTP algorithm</li>
+                <li>30s time-step drift tolerance</li>
+                <li>Anti-replay step protection</li>
+                <li>5 single-use emergency recovery codes</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- 3. SYSTEM SECURITY ARCHITECTURE & POLICIES -->
+<div class="content-card">
+    <div class="card-header" style="padding: 16px 20px; border-bottom: 1px solid var(--divider-color);">
+        <div>
+            <h2 style="font-size: 16px; font-weight: 600; margin: 0; color: var(--text-primary);">Enterprise Security Architecture & Parameters</h2>
+            <p style="font-size: 12px; color: var(--text-secondary); margin: 2px 0 0;">Implemented defense controls across SEPS</p>
+        </div>
+    </div>
+
+    <div style="padding: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px;">
+        <div style="padding: 16px; background: var(--surface-secondary); border: 1px solid var(--border-color); border-radius: 8px;">
+            <div style="font-size: 14px; font-weight: 600; margin-bottom: 4px; color: var(--text-primary);">🛡️ Brute-Force Defense</div>
+            <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.5;">
+                Configured with <strong>5 maximum consecutive failed attempts</strong>. Exceeding triggers automatic lockout for <strong>15 minutes</strong> with administrative unlock capability.
+            </div>
+        </div>
+
+        <div style="padding: 16px; background: var(--surface-secondary); border: 1px solid var(--border-color); border-radius: 8px;">
+            <div style="font-size: 14px; font-weight: 600; margin-bottom: 4px; color: var(--text-primary);">🔑 Password Cryptography</div>
+            <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.5;">
+                Uses <strong>PBKDF2 with HMAC-SHA256</strong> (100,000 subkey iterations) compatible with ASP.NET Core Identity, with automatic legacy hash migration on successful login.
+            </div>
+        </div>
+
+        <div style="padding: 16px; background: var(--surface-secondary); border: 1px solid var(--border-color); border-radius: 8px;">
+            <div style="font-size: 14px; font-weight: 600; margin-bottom: 4px; color: var(--text-primary);">🍪 Cookie & Session Hardening</div>
+            <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.5;">
+                Protected with <code>HttpOnly=true</code>, <code>SameSite=Strict</code>, sliding expiration, and automatic eviction on server-side logout.
+            </div>
+        </div>
+
+        <div style="padding: 16px; background: var(--surface-secondary); border: 1px solid var(--border-color); border-radius: 8px;">
+            <div style="font-size: 14px; font-weight: 600; margin-bottom: 4px; color: var(--text-primary);">🗄️ Relational Database</div>
+            <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.5;">
+                Live Microsoft SQL Server 2022 database: <code>TANUJGARG\SQLEXPRESS</code> / <code>SecureEmployeePayrollDB</code> with ACID transactional payroll runs.
+            </div>
+        </div>
+    </div>
+</div>

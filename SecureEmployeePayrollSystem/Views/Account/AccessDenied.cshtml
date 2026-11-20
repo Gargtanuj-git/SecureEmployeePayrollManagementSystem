@@ -1,0 +1,34 @@
+@{
+    ViewData["Title"] = "Access Denied";
+}
+
+<div class="content-card" style="max-width: 600px; margin: 60px auto; padding: 40px; text-align: center;">
+    <div style="font-size: 3rem; margin-bottom: 16px;">🛑</div>
+    <h1 style="font-size: 1.75rem; color: var(--google-red, #ea4335); margin-bottom: 12px; font-weight: 600;">Access Denied (403)</h1>
+    <p style="color: var(--seps-text-secondary); font-size: 1rem; line-height: 1.6; margin-bottom: 24px;">
+        You do not have the required permissions or role privileges to view or perform operations on this resource. All security authorization boundaries are strictly enforced on the server.
+    </p>
+
+    <div style="background: var(--seps-input-bg); border: 1px solid var(--seps-border); border-radius: 8px; padding: 16px; margin-bottom: 30px; text-align: left; font-size: 0.875rem; color: var(--seps-text);">
+        <div><strong>Current Identity:</strong> @(User.Identity?.Name ?? "Anonymous")</div>
+        <div style="margin-top: 6px;">
+            <strong>Assigned Roles:</strong> 
+            @{
+                var roles = User.Claims.Where(c => c.Type == System.Security.Claims.ClaimTypes.Role).Select(c => c.Value).ToList();
+            }
+            @(roles.Any() ? string.Join(", ", roles) : "None")
+        </div>
+    </div>
+
+    <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+        <a asp-controller="Home" asp-action="Index" class="btn btn-primary" style="text-decoration: none;">
+            Return to Dashboard
+        </a>
+        <form asp-controller="Account" asp-action="Logout" method="post" style="display: inline;">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-secondary">
+                Switch Account
+            </button>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,199 @@
+@model IEnumerable<SecureEmployeePayrollSystem.Models.AuditLog>
+
+@{
+    ViewData["Title"] = "Security & Audit Logs";
+    var users = (List<UserAccount>)ViewBag.Users;
+    int currentPage = (int)ViewBag.Page;
+    int totalPages = (int)ViewBag.TotalPages;
+}
+
+<div class="page-hero-banner" style="background-image: url('/images/reports-banner.jpg');">
+    <div class="page-hero-content">
+        <h1 style="font-size: 26px; font-weight: 600; margin-bottom: 6px; color: #ffffff !important;">
+            Security & System Audit Trails
+        </h1>
+        <p style="color: #e2e8f0 !important; margin: 0; font-size: 14px;">
+            Comprehensive forensic audit logging, user interactions, IP tracking, cryptographic state validation, and system events.
+        </p>
+    </div>
+</div>
+
+<div class="content-card">
+    <div class="card-header">
+        <div>
+            <h2>Audit Event Records</h2>
+            <p>Showing @Model.Count() records (Total logged: @ViewBag.TotalCount)</p>
+        </div>
+    </div>
+
+    <!-- FILTER BAR -->
+    <form asp-controller="AuditLogs" asp-action="Index" method="get" class="filter-bar">
+        <div class="form-group">
+            <label for="actionType">Action Type</label>
+            <select id="actionType" name="actionType" class="form-control filter-select">
+                <option value="">All Actions</option>
+                <option value="LOGIN" selected="@(ViewBag.ActionType == "LOGIN" ? "selected" : null)">LOGIN</option>
+                <option value="LOGOUT" selected="@(ViewBag.ActionType == "LOGOUT" ? "selected" : null)">LOGOUT</option>
+                <option value="LOGIN_FAILED" selected="@(ViewBag.ActionType == "LOGIN_FAILED" ? "selected" : null)">LOGIN_FAILED</option>
+                <option value="ACCOUNT_LOCKED" selected="@(ViewBag.ActionType == "ACCOUNT_LOCKED" ? "selected" : null)">ACCOUNT_LOCKED</option>
+                <option value="CREATE" selected="@(ViewBag.ActionType == "CREATE" ? "selected" : null)">CREATE</option>
+                <option value="UPDATE" selected="@(ViewBag.ActionType == "UPDATE" ? "selected" : null)">UPDATE</option>
+                <option value="STATUS_CHANGE" selected="@(ViewBag.ActionType == "STATUS_CHANGE" ? "selected" : null)">STATUS_CHANGE</option>
+                <option value="PROCESS_PAYROLL" selected="@(ViewBag.ActionType == "PROCESS_PAYROLL" ? "selected" : null)">PROCESS_PAYROLL</option>
+                <option value="CLOCK_IN" selected="@(ViewBag.ActionType == "CLOCK_IN" ? "selected" : null)">CLOCK_IN</option>
+                <option value="CLOCK_OUT" selected="@(ViewBag.ActionType == "CLOCK_OUT" ? "selected" : null)">CLOCK_OUT</option>
+                <option value="APPROVE" selected="@(ViewBag.ActionType == "APPROVE" ? "selected" : null)">APPROVE</option>
+                <option value="REJECT" selected="@(ViewBag.ActionType == "REJECT" ? "selected" : null)">REJECT</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="tableName">Entity / Table</label>
+            <select id="tableName" name="tableName" class="form-control filter-select">
+                <option value="">All Entities</option>
+                <option value="USER_ACCOUNT" selected="@(ViewBag.TableName == "USER_ACCOUNT" ? "selected" : null)">USER_ACCOUNT</option>
+                <option value="EMPLOYEE" selected="@(ViewBag.TableName == "EMPLOYEE" ? "selected" : null)">EMPLOYEE</option>
+                <option value="DEPARTMENT" selected="@(ViewBag.TableName == "DEPARTMENT" ? "selected" : null)">DEPARTMENT</option>
+                <option value="DESIGNATION" selected="@(ViewBag.TableName == "DESIGNATION" ? "selected" : null)">DESIGNATION</option>
+                <option value="ATTENDANCE" selected="@(ViewBag.TableName == "ATTENDANCE" ? "selected" : null)">ATTENDANCE</option>
+                <option value="LEAVE" selected="@(ViewBag.TableName == "LEAVE" ? "selected" : null)">LEAVE</option>
+                <option value="PAYROLL" selected="@(ViewBag.TableName == "PAYROLL" ? "selected" : null)">PAYROLL</option>
+                <option value="PAYMENT" selected="@(ViewBag.TableName == "PAYMENT" ? "selected" : null)">PAYMENT</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="userId">Initiator User</label>
+            <select id="userId" name="userId" class="form-control filter-select">
+                <option value="">All Users</option>
+                @foreach (var u in users)
+                {
+                    <option value="@u.UserId" selected="@(ViewBag.UserId == u.UserId ? "selected" : null)">
+                        @u.Username (#@u.UserId)
+                    </option>
+                }
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="fromStr">From Date</label>
+            <input type="date" id="fromStr" name="fromStr" value="@ViewBag.FromStr" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label for="toStr">To Date</label>
+            <input type="date" id="toStr" name="toStr" value="@ViewBag.ToStr" class="form-control" />
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="margin-bottom: 2px;">Filter</button>
+        <a asp-controller="AuditLogs" asp-action="Index" class="btn btn-secondary" style="margin-bottom: 2px;">Reset</a>
+    </form>
+
+    <!-- TABLE -->
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Log #</th>
+                    <th>Timestamp (UTC)</th>
+                    <th>Initiator</th>
+                    <th>Action</th>
+                    <th>Entity</th>
+                    <th>Record ID</th>
+                    <th>Status</th>
+                    <th>Description</th>
+                    <th>IP Address</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Any())
+                {
+                    foreach (var a in Model)
+                    {
+                        <tr>
+                            <td><strong>#@a.AuditId</strong></td>
+                            <td>@a.ActionDateTime.ToString("dd MMM yyyy, HH:mm:ss")</td>
+                            <td>
+                                <div><strong>@(a.User?.Username ?? "System")</strong></div>
+                                <div style="font-size: 11px; color: var(--seps-text-secondary);">User ID: #@a.UserId</div>
+                            </td>
+                            <td>
+                                @if (a.ActionType.Contains("FAIL") || a.ActionType.Contains("LOCKED"))
+                                {
+                                    <span class="status-badge status-danger">@a.ActionType</span>
+                                }
+                                else if (a.ActionType.Contains("LOGIN") || a.ActionType.Contains("SUCCESS"))
+                                {
+                                    <span class="status-badge status-success">@a.ActionType</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge status-neutral">@a.ActionType</span>
+                                }
+                            </td>
+                            <td><code>@a.TableName</code></td>
+                            <td>#@a.RecordId</td>
+                            <td>
+                                @if (a.ActionStatus == "Success")
+                                {
+                                    <span class="status-badge status-success">Success</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge status-danger">@a.ActionStatus</span>
+                                }
+                            </td>
+                            <td style="max-width: 320px; word-break: break-word;">@(a.Description ?? "-")</td>
+                            <td><code style="font-size: 12px;">@(a.IpAddress ?? "-")</code></td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="9">
+                            <div class="empty-state">
+                                <h3>No audit log records found</h3>
+                                <p>No security events match your search criteria.</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- PAGINATION -->
+    @if (totalPages > 1)
+    {
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-top: 1px solid var(--border-color);">
+            <div style="font-size: 13px; color: var(--text-secondary);">
+                Page @currentPage of @totalPages
+            </div>
+            <div style="display: flex; gap: 6px;">
+                @if (currentPage > 1)
+                {
+                    <a asp-controller="AuditLogs" asp-action="Index" 
+                       asp-route-page="@(currentPage - 1)" 
+                       asp-route-actionType="@ViewBag.ActionType" 
+                       asp-route-tableName="@ViewBag.TableName" 
+                       asp-route-userId="@ViewBag.UserId" 
+                       asp-route-fromStr="@ViewBag.FromStr" 
+                       asp-route-toStr="@ViewBag.ToStr" 
+                       class="btn btn-secondary btn-sm">&larr; Previous</a>
+                }
+                @if (currentPage < totalPages)
+                {
+                    <a asp-controller="AuditLogs" asp-action="Index" 
+                       asp-route-page="@(currentPage + 1)" 
+                       asp-route-actionType="@ViewBag.ActionType" 
+                       asp-route-tableName="@ViewBag.TableName" 
+                       asp-route-userId="@ViewBag.UserId" 
+                       asp-route-fromStr="@ViewBag.FromStr" 
+                       asp-route-toStr="@ViewBag.ToStr" 
+                       class="btn btn-secondary btn-sm">Next &rarr;</a>
+                }
+            </div>
+        </div>
+    }
+</div>

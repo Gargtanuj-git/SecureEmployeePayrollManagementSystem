@@ -1,0 +1,103 @@
+@model SecureEmployeePayrollSystem.ViewModels.VerifyEmailViewModel
+
+@{
+    Layout = null;
+    ViewData["Title"] = "Email Verification - Secure Employee Payroll System";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Email Verification - Secure Employee Payroll System</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="icon" type="image/png" sizes="32x32" href="~/images/seps-favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="~/images/seps-favicon-16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="~/images/seps-apple-touch-icon.png" />
+    <link rel="shortcut icon" href="~/favicon.ico" />
+    <script>
+        (function() {
+            var savedTheme = localStorage.getItem('seps-theme') || 
+                (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
+</head>
+<body>
+    <main class="google-login-page" style="padding: 24px 16px;">
+        <section class="login-card" style="max-width: 500px; width: 100%; border-radius: 20px; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12); padding: 36px 32px; text-align: center;">
+            
+            <!-- THEME TOGGLE -->
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 8px;">
+                <button type="button" class="theme-toggle-btn" aria-label="Toggle dark/light theme" title="Toggle Theme" style="background: var(--surface-secondary); border: 1px solid var(--border-color); border-radius: 20px; padding: 4px 12px; color: var(--text-primary); display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 11.5px; font-weight: 500;">
+                    <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true" style="width: 14px; height: 14px; fill: currentColor;">
+                        <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z" />
+                    </svg>
+                    <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true" style="width: 14px; height: 14px; fill: currentColor; display: none;">
+                        <path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58a.996.996 0 0 0-1.41 0 .996.996 0 0 0 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37a.996.996 0 0 0-1.41 0 .996.996 0 0 0 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41l-1.06-1.06zm1.06-10.96a.996.996 0 0 0 0-1.41.996.996 0 0 0-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36a.996.996 0 0 0 0-1.41.996.996 0 0 0-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z" />
+                    </svg>
+                    <span class="theme-label-text">Theme</span>
+                </button>
+            </div>
+
+            <div style="margin-bottom: 24px;">
+                <div style="width: 56px; height: 56px; border-radius: 16px; background: @(Model.IsSuccess ? "linear-gradient(135deg, #10b981 0%, #059669 100%)" : "linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)"); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px @(Model.IsSuccess ? "rgba(16, 185, 129, 0.35)" : "rgba(239, 68, 68, 0.35)"); margin: 0 auto 16px;">
+                    @if (Model.IsSuccess)
+                    {
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    }
+                    else
+                    {
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    }
+                </div>
+
+                <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 8px;">
+                    <span style="font-size: 22px; font-weight: 800; letter-spacing: -0.02em; color: var(--text-primary);">SEPS</span>
+                    <span style="background: rgba(16, 185, 129, 0.15); color: var(--success); font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 12px; border: 1px solid rgba(16, 185, 129, 0.3);">v2.5</span>
+                </div>
+
+                <h1 style="margin: 8px 0 6px; font-size: 22px; font-weight: 700; color: var(--text-primary);">
+                    @(Model.IsSuccess ? "Account Activated!" : "Verification Failed")
+                </h1>
+                <p style="font-size: 14px; color: var(--text-secondary); margin: 0; line-height: 1.5;">
+                    @Model.Message
+                </p>
+            </div>
+
+            <div style="margin-top: 28px;">
+                @if (Model.IsSuccess)
+                {
+                    <a asp-action="Login" style="display: block; width: 100%; height: 44px; line-height: 44px; text-align: center; text-decoration: none; border-radius: 10px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #ffffff; font-size: 14.5px; font-weight: 600; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);">
+                        Proceed to Sign In
+                    </a>
+                }
+                else
+                {
+                    <div style="display: flex; gap: 12px;">
+                        <a asp-action="Register" class="btn btn-secondary" style="flex: 1; height: 42px; line-height: 42px; text-align: center; text-decoration: none; border-radius: 10px; font-size: 13.5px; font-weight: 500;">
+                            Register Again
+                        </a>
+                        <a asp-action="Login" style="flex: 1; height: 42px; line-height: 42px; text-align: center; text-decoration: none; border-radius: 10px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #ffffff; font-size: 13.5px; font-weight: 600;">
+                            Return to Sign In
+                        </a>
+                    </div>
+                }
+            </div>
+
+            <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 28px; padding-top: 16px; border-top: 1px solid var(--divider-color); font-size: 11.5px; color: var(--text-muted);">
+                <span>🔒 Secure Zero-Trust Token Verification • SEPS Security Protocol</span>
+            </div>
+
+        </section>
+    </main>
+
+    <script src="~/js/site.js" asp-append-version="true"></script>
+</body>
+</html>

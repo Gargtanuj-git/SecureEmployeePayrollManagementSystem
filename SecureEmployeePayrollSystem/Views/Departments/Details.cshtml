@@ -1,0 +1,123 @@
+@model SecureEmployeePayrollSystem.Models.Department
+
+@{
+    ViewData["Title"] = $"{Model.DepartmentName} - Details";
+    bool canManage = User.IsInRole("Admin") || User.IsInRole("HR Manager");
+}
+
+<div class="page-header">
+    <div>
+        <h1>@Model.DepartmentName</h1>
+        <p>Location: @Model.Location | Status: @Model.DepartmentStatus</p>
+    </div>
+    <div class="page-header-actions" style="display: flex; gap: 8px;">
+        <a asp-controller="Departments" asp-action="Index" class="btn btn-secondary">
+            &larr; All Departments
+        </a>
+        @if (canManage)
+        {
+            <a asp-controller="Departments" asp-action="Edit" asp-route-id="@Model.DepartmentId" class="btn btn-primary">
+                Edit Department
+            </a>
+        }
+    </div>
+</div>
+
+<div class="content-card" style="margin-bottom: 24px;">
+    <div class="card-header">
+        <div>
+            <h2>Department Information</h2>
+            <p>ID: #@Model.DepartmentId</p>
+        </div>
+        <div>
+            @if (Model.DepartmentStatus == "Active")
+            {
+                <span class="status-badge status-success">Active</span>
+            }
+            else
+            {
+                <span class="status-badge status-danger">Inactive</span>
+            }
+        </div>
+    </div>
+    <div style="padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div>
+            <div style="font-size: 12px; color: var(--seps-text-secondary);">Department Name</div>
+            <div style="font-size: 16px; font-weight: 500;">@Model.DepartmentName</div>
+        </div>
+        <div>
+            <div style="font-size: 12px; color: var(--seps-text-secondary);">Office / Location</div>
+            <div style="font-size: 16px; font-weight: 500;">@Model.Location</div>
+        </div>
+    </div>
+</div>
+
+<div class="content-card">
+    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h2>Assigned Employees</h2>
+            <p>@((Model.Employees?.Count ?? 0)) employee(s) in this department</p>
+        </div>
+        @if (canManage)
+        {
+            <a asp-controller="Employees" asp-action="Create" class="btn btn-secondary btn-sm">
+                + Assign New Employee
+            </a>
+        }
+    </div>
+
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Designation</th>
+                    <th>Status</th>
+                    <th style="text-align: right;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Employees != null && Model.Employees.Any())
+                {
+                    foreach (var emp in Model.Employees)
+                    {
+                        <tr>
+                            <td><strong>#@emp.EmployeeId</strong></td>
+                            <td>@emp.FirstName @emp.LastName</td>
+                            <td>@emp.Email</td>
+                            <td>@(emp.Designation?.DesignationName ?? "N/A")</td>
+                            <td>
+                                @if (emp.EmploymentStatus == "Active")
+                                {
+                                    <span class="status-badge status-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge status-neutral">@emp.EmploymentStatus</span>
+                                }
+                            </td>
+                            <td style="text-align: right;">
+                                <a asp-controller="Employees" asp-action="Details" asp-route-id="@emp.EmployeeId" class="btn btn-secondary btn-sm">
+                                    Profile
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6">
+                            <div class="empty-state">
+                                <h3>No employees assigned</h3>
+                                <p>There are currently no staff members assigned to this department.</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <meta name="description"
+          content="Secure Employee Payroll System" />
+
+    <title>
+        @ViewData["Title"] - Secure Employee Payroll System
+    </title>
+
+    <link rel="stylesheet"
+          href="~/css/site.css"
+          asp-append-version="true" />
+
+    <link rel="icon" type="image/png" sizes="32x32" href="~/images/seps-favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="~/images/seps-favicon-16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="~/images/seps-apple-touch-icon.png" />
+    <link rel="shortcut icon" href="~/favicon.ico" />
+
+    <script>
+        (function() {
+            var savedTheme = localStorage.getItem('seps-theme') || 
+                (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
+</head>
+
+<body>
+
+    <div class="app-shell">
+
+        <!-- MOBILE OVERLAY -->
+        <div id="sidebarOverlay"
+             class="sidebar-overlay">
+        </div>
+
+
+        <!-- SIDEBAR -->
+        <partial name="_Sidebar" />
+
+
+        <!-- MAIN AREA -->
+        <div class="app-main">
+
+
+            <!-- HEADER -->
+            <partial name="_Header" />
+
+
+            <!-- PAGE CONTENT -->
+            <main class="app-content">
+
+                @RenderBody()
+
+            </main>
+
+
+        </div>
+
+    </div>
+
+
+    <!-- TOAST CONTAINER -->
+    <div id="toastContainer"
+         class="toast-container">
+    </div>
+
+
+    <script src="~/js/site.js"
+            asp-append-version="true">
+    </script>
+
+
+    @await RenderSectionAsync(
+        "Scripts",
+        required: false)
+
+</body>
+
+</html>

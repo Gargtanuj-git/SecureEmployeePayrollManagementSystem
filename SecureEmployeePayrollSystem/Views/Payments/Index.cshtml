@@ -1,0 +1,222 @@
+@model IEnumerable<SecureEmployeePayrollSystem.Models.Payment>
+
+@{
+    ViewData["Title"] = "Payment Disbursements";
+    bool canManage = User.IsInRole("Admin") || User.IsInRole("Payroll Manager");
+    var payrollItems = (List<PayrollItem>)ViewBag.PayrollItems;
+    int currentPage = (int)ViewBag.Page;
+    int totalPages = (int)ViewBag.TotalPages;
+}
+
+<div class="page-header">
+    <div>
+        <h1>Salary Disbursement & Payment Vouchers</h1>
+        <p>Direct bank transfers, payment settlement vouchers, and transaction audit references.</p>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<!-- RECORD PAYMENT VOUCHER FORM (PAYROLL MANAGERS ONLY) -->
+@if (canManage)
+{
+    <div class="content-card" style="margin-bottom: 24px;">
+        <div class="card-header" style="padding: 16px 20px; border-bottom: 1px solid var(--seps-border);">
+            <h2 style="font-size: 15px; font-weight: 600; margin: 0;">Record Payment Disbursement Voucher</h2>
+            <p style="font-size: 12px; color: var(--seps-text-secondary); margin: 2px 0 0;">Create an electronic transfer settlement record</p>
+        </div>
+
+        <form asp-controller="Payments" asp-action="Create" method="post" style="padding: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) auto; gap: 14px; align-items: flex-end;">
+            @Html.AntiForgeryToken()
+
+            <div class="form-group">
+                <label for="payrollItemId">Payroll Slip / Item *</label>
+                <select name="payrollItemId" id="payrollItemId" class="form-control" required>
+                    <option value="">-- Select Payroll Record --</option>
+                    @foreach (var pi in payrollItems)
+                    {
+                        <option value="@pi.PayrollItemId">
+                            Slip #@pi.PayrollId: @pi.Payroll.Employee?.FirstName @pi.Payroll.Employee?.LastName (@pi.Payroll.PayPeriodStart:MMM yyyy)
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="paymentDate">Disbursement Date *</label>
+                <input type="date" name="paymentDate" id="paymentDate" class="form-control" value="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+            </div>
+
+            <div class="form-group">
+                <label for="amount">Amount (₹) *</label>
+                <input type="number" step="0.01" name="amount" id="amount" class="form-control" placeholder="e.g. 65000.00" required />
+            </div>
+
+            <div class="form-group">
+                <label for="method">Method *</label>
+                <select name="method" id="method" class="form-control">
+                    <option value="Direct Deposit">Direct Deposit (NEFT/RTGS)</option>
+                    <option value="Bank Transfer">Bank Transfer (IMPS)</option>
+                    <option value="Company Cheque">Company Cheque</option>
+                    <option value="UPI">UPI Corporate</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="transactionRef">Transaction Ref (Optional)</label>
+                <input type="text" name="transactionRef" id="transactionRef" class="form-control" placeholder="Auto-generated if empty" />
+            </div>
+
+            <div class="form-group">
+                <label for="status">Payment Status *</label>
+                <select name="status" id="status" class="form-control">
+                    <option value="Completed">Completed</option>
+                    <option value="Processing">Processing</option>
+                    <option value="Pending">Pending</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="margin-bottom: 2px;">
+                Record Voucher
+            </button>
+        </form>
+    </div>
+}
+
+<!-- VOUCHERS TABLE -->
+<div class="content-card">
+    <div class="card-header">
+        <div>
+            <h2>Disbursement Vouchers Directory</h2>
+            <p>Showing @Model.Count() records (Total vouchers: @ViewBag.TotalCount)</p>
+        </div>
+    </div>
+
+    <!-- FILTER BAR -->
+    <form asp-controller="Payments" asp-action="Index" method="get" class="filter-bar">
+        <div class="form-group">
+            <label for="methodFilter">Payment Method</label>
+            <select id="methodFilter" name="method" class="form-control filter-select">
+                <option value="">All Methods</option>
+                <option value="Direct Deposit" selected="@(ViewBag.Method == "Direct Deposit" ? "selected" : null)">Direct Deposit</option>
+                <option value="Bank Transfer" selected="@(ViewBag.Method == "Bank Transfer" ? "selected" : null)">Bank Transfer</option>
+                <option value="Company Cheque" selected="@(ViewBag.Method == "Company Cheque" ? "selected" : null)">Company Cheque</option>
+                <option value="UPI" selected="@(ViewBag.Method == "UPI" ? "selected" : null)">UPI</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="statusFilter">Status</label>
+            <select id="statusFilter" name="status" class="form-control filter-select">
+                <option value="">All Statuses</option>
+                <option value="Completed" selected="@(ViewBag.Status == "Completed" ? "selected" : null)">Completed</option>
+                <option value="Processing" selected="@(ViewBag.Status == "Processing" ? "selected" : null)">Processing</option>
+                <option value="Pending" selected="@(ViewBag.Status == "Pending" ? "selected" : null)">Pending</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="margin-bottom: 2px;">Filter</button>
+        <a asp-controller="Payments" asp-action="Index" class="btn btn-secondary" style="margin-bottom: 2px;">Reset</a>
+    </form>
+
+    <!-- DATA TABLE -->
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Voucher #</th>
+                    <th>Payment Date</th>
+                    <th>Employee Recipient</th>
+                    <th>Method</th>
+                    <th>Transaction Reference</th>
+                    <th>Amount Disbursed</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Any())
+                {
+                    foreach (var p in Model)
+                    {
+                        var emp = p.PayrollItem?.Payroll?.Employee;
+                        <tr>
+                            <td><strong>#@p.PaymentId</strong></td>
+                            <td>@p.PaymentDate.ToString("dd MMM yyyy")</td>
+                            <td>
+                                <div><strong>@(emp != null ? $"{emp.FirstName} {emp.LastName}" : "Employee Record")</strong></div>
+                                <div style="font-size: 12px; color: var(--seps-text-secondary);">Slip #@(p.PayrollItem?.PayrollId)</div>
+                            </td>
+                            <td>@p.PaymentMethod</td>
+                            <td><code style="font-size: 12px; background: var(--seps-surface-variant); padding: 2px 6px; border-radius: 4px;">@p.TransactionReference</code></td>
+                            <td><strong style="color: var(--google-green);">₹@p.Amount.ToString("N2")</strong></td>
+                            <td>
+                                @if (p.PaymentStatus == "Completed")
+                                {
+                                    <span class="status-badge status-success">Completed</span>
+                                }
+                                else if (p.PaymentStatus == "Processing")
+                                {
+                                    <span class="status-badge status-info">Processing</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge status-warning">@p.PaymentStatus</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <h3>No payment vouchers found</h3>
+                                <p>No disbursement vouchers match your query.</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- PAGINATION -->
+    @if (totalPages > 1)
+    {
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-top: 1px solid var(--seps-border);">
+            <div style="font-size: 13px; color: var(--seps-text-secondary);">
+                Page @currentPage of @totalPages
+            </div>
+            <div style="display: flex; gap: 6px;">
+                @if (currentPage > 1)
+                {
+                    <a asp-controller="Payments" asp-action="Index" 
+                       asp-route-page="@(currentPage - 1)" 
+                       asp-route-method="@ViewBag.Method" 
+                       asp-route-status="@ViewBag.Status" 
+                       class="btn btn-secondary btn-sm">&larr; Previous</a>
+                }
+                @if (currentPage < totalPages)
+                {
+                    <a asp-controller="Payments" asp-action="Index" 
+                       asp-route-page="@(currentPage + 1)" 
+                       asp-route-method="@ViewBag.Method" 
+                       asp-route-status="@ViewBag.Status" 
+                       class="btn btn-secondary btn-sm">Next &rarr;</a>
+                }
+            </div>
+        </div>
+    }
+</div>

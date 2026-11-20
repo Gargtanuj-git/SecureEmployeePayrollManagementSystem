@@ -1,0 +1,303 @@
+@model SecureEmployeePayrollSystem.Models.SalaryStructure
+
+@{
+    ViewData["Title"] = $"{Model.StructureName} - Details";
+    bool canManage = User.IsInRole("Admin") || User.IsInRole("Payroll Manager");
+}
+
+<div class="page-header">
+    <div>
+        <h1>@Model.StructureName</h1>
+        <p>Basic Salary: ₹@Model.BasicSalary.ToString("N2") | Status: @Model.Status</p>
+    </div>
+    <div class="page-header-actions" style="display: flex; gap: 8px;">
+        <a asp-controller="SalaryStructure" asp-action="Index" class="btn btn-secondary">
+            &larr; All Structures
+        </a>
+        @if (canManage)
+        {
+            <a asp-controller="SalaryStructure" asp-action="Edit" asp-route-id="@Model.SalaryStructureId" class="btn btn-primary">
+                Edit Structure
+            </a>
+        }
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<!-- STRUCTURE SUMMARY -->
+<div class="content-card" style="margin-bottom: 24px;">
+    <div class="card-header">
+        <div>
+            <h2>Base Salary Specifications</h2>
+            <p>ID: #@Model.SalaryStructureId</p>
+        </div>
+        <div>
+            @if (Model.Status == "Active")
+            {
+                <span class="status-badge status-success">Active</span>
+            }
+            else
+            {
+                <span class="status-badge status-danger">@Model.Status</span>
+            }
+        </div>
+    </div>
+    <div style="padding: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+        <div>
+            <div style="font-size: 12px; color: var(--seps-text-secondary);">Structure Name</div>
+            <div style="font-size: 16px; font-weight: 500;">@Model.StructureName</div>
+        </div>
+        <div>
+            <div style="font-size: 12px; color: var(--seps-text-secondary);">Basic Monthly Salary</div>
+            <div style="font-size: 18px; font-weight: 600; color: var(--google-green);">₹@Model.BasicSalary.ToString("N2")</div>
+        </div>
+        <div>
+            <div style="font-size: 12px; color: var(--seps-text-secondary);">Effective Period</div>
+            <div style="font-size: 14px; font-weight: 500;">
+                @Model.EffectiveFrom.ToString("dd MMM yyyy") 
+                @(Model.EffectiveTo.HasValue ? $"- {Model.EffectiveTo.Value:dd MMM yyyy}" : "(Ongoing)")
+            </div>
+        </div>
+        <div>
+            <div style="font-size: 12px; color: var(--seps-text-secondary);">Enrolled Employees</div>
+            <div style="font-size: 16px; font-weight: 500;">@Model.Employees.Count staff member(s)</div>
+        </div>
+    </div>
+</div>
+
+<!-- SALARY COMPONENTS TABLE -->
+<div class="content-card" style="margin-bottom: 24px;">
+    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h2>Earnings & Deductions Components</h2>
+            <p>Allowances and deductions calculated during monthly payroll runs</p>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Component Name</th>
+                    <th>Type</th>
+                    <th>Calculation Mode</th>
+                    <th>Value / Rate</th>
+                    <th>Est. Amount on Basic (₹@Model.BasicSalary.ToString("N0"))</th>
+                    @if (canManage)
+                    {
+                        <th style="text-align: right;">Action</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Basic Salary Row -->
+                <tr style="background: var(--seps-surface-variant, var(--surface-secondary));">
+                    <td><strong>Basic Salary (Base Component)</strong></td>
+                    <td><span class="status-badge status-success">Earning</span></td>
+                    <td>Fixed Base</td>
+                    <td>-</td>
+                    <td><strong>₹@Model.BasicSalary.ToString("N2")</strong></td>
+                    @if (canManage)
+                    {
+                        <td style="text-align: right;"><span style="font-size: 12px; color: var(--seps-text-secondary);">Base Component</span></td>
+                    }
+                </tr>
+
+                @if (Model.SalaryComponents.Any())
+                {
+                    foreach (var comp in Model.SalaryComponents)
+                    {
+                        decimal estAmount = comp.CalculationType == "Percentage" && comp.Percentage.HasValue
+                            ? Math.Round(Model.BasicSalary * (comp.Percentage.Value / 100m), 2)
+                            : (comp.FixedAmount ?? 0);
+
+                        <tr>
+                            <td><strong>@comp.ComponentName</strong></td>
+                            <td>
+                                @if (comp.ComponentType == "Earning")
+                                {
+                                    <span class="status-badge status-success">Earning</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge status-danger">Deduction</span>
+                                }
+                            </td>
+                            <td>@comp.CalculationType</td>
+                            <td>
+                                @(comp.CalculationType == "Percentage" ? $"{comp.Percentage}% of Basic" : $"₹{comp.FixedAmount:N2} Fixed")
+                            </td>
+                            <td>
+                                <strong style="color: @(comp.ComponentType == "Earning" ? "var(--google-green)" : "var(--google-red)");">
+                                    @(comp.ComponentType == "Earning" ? "+" : "-") ₹@estAmount.ToString("N2")
+                                </strong>
+                            </td>
+                            @if (canManage)
+                            {
+                                <td style="text-align: right;">
+                                    <form asp-controller="SalaryStructure" asp-action="DeleteComponent" method="post" style="display:inline;" onsubmit="return confirm('Remove component @comp.ComponentName?');">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="componentId" value="@comp.ComponentId" />
+                                        <input type="hidden" name="salaryStructureId" value="@Model.SalaryStructureId" />
+                                        <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                                    </form>
+                                </td>
+                            }
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="@(canManage ? 6 : 5)">
+                            <div class="empty-state">
+                                <h3>No additional components configured</h3>
+                                <p>Add earnings (HRA, DA, Allowances) or deductions (PF, Tax) below.</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ADD COMPONENT FORM (MANAGERS ONLY) -->
+@if (canManage)
+{
+    <div class="content-card" style="margin-bottom: 24px;">
+        <div class="card-header" style="padding: 16px 20px; border-bottom: 1px solid var(--seps-border);">
+            <h2 style="font-size: 15px; font-weight: 600; margin: 0;">Add Component to this Structure</h2>
+            <p style="font-size: 12px; color: var(--seps-text-secondary); margin: 2px 0 0;">Add allowance or statutory deduction</p>
+        </div>
+
+        <form asp-controller="SalaryStructure" asp-action="AddComponent" method="post" style="padding: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) auto; gap: 12px; align-items: flex-end;">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="salaryStructureId" value="@Model.SalaryStructureId" />
+
+            <div class="form-group">
+                <label for="componentName">Component Name *</label>
+                <input type="text" name="componentName" id="componentName" class="form-control" placeholder="e.g. House Rent Allowance" required />
+            </div>
+
+            <div class="form-group">
+                <label for="componentType">Type *</label>
+                <select name="componentType" id="componentType" class="form-control">
+                    <option value="Earning">Earning (+)</option>
+                    <option value="Deduction">Deduction (-)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="calcType">Calculation Type *</label>
+                <select name="calculationType" id="calcType" class="form-control" onchange="toggleCalcInputs(this.value)">
+                    <option value="Percentage">Percentage of Basic (%)</option>
+                    <option value="Fixed">Fixed Amount (₹)</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="grpPercentage">
+                <label for="percentage">Percentage (%)</label>
+                <input type="number" step="0.01" name="percentage" id="percentage" class="form-control" placeholder="e.g. 20" value="20" />
+            </div>
+
+            <div class="form-group" id="grpFixed" style="display: none;">
+                <label for="fixedAmount">Fixed Amount (₹)</label>
+                <input type="number" step="0.01" name="fixedAmount" id="fixedAmount" class="form-control" placeholder="e.g. 2500.00" />
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="margin-bottom: 2px;">
+                + Add Component
+            </button>
+        </form>
+    </div>
+}
+
+<!-- ENROLLED EMPLOYEES -->
+<div class="content-card">
+    <div class="card-header">
+        <div>
+            <h2>Employees in this Pay Grade</h2>
+            <p>@Model.Employees.Count employee(s) currently assigned</p>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Department</th>
+                    <th>Status</th>
+                    <th style="text-align: right;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Employees.Any())
+                {
+                    foreach (var emp in Model.Employees)
+                    {
+                        <tr>
+                            <td><strong>#@emp.EmployeeId</strong></td>
+                            <td>@emp.FirstName @emp.LastName</td>
+                            <td>@emp.Email</td>
+                            <td>@(emp.Department?.DepartmentName ?? "N/A")</td>
+                            <td>
+                                @if (emp.EmploymentStatus == "Active")
+                                {
+                                    <span class="status-badge status-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge status-neutral">@emp.EmploymentStatus</span>
+                                }
+                            </td>
+                            <td style="text-align: right;">
+                                <a asp-controller="Employees" asp-action="Details" asp-route-id="@emp.EmployeeId" class="btn btn-secondary btn-sm">
+                                    Profile
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6">
+                            <div class="empty-state">
+                                <h3>No employees in this grade</h3>
+                                <p>Assign employees to this structure via the Employee management module.</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    function toggleCalcInputs(mode) {
+        if (mode === 'Percentage') {
+            document.getElementById('grpPercentage').style.display = 'block';
+            document.getElementById('grpFixed').style.display = 'none';
+        } else {
+            document.getElementById('grpPercentage').style.display = 'none';
+            document.getElementById('grpFixed').style.display = 'block';
+        }
+    }
+</script>

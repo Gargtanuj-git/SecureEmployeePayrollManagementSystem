@@ -1,0 +1,303 @@
+@model IEnumerable<SecureEmployeePayrollSystem.Models.Attendance>
+
+@{
+    ViewData["Title"] = "Attendance";
+    var summary = ((int TotalPresent, int TotalAbsent, int TotalOnLeave, int TotalHalfDay))ViewBag.Summary;
+    var departments = (List<Department>)ViewBag.Departments;
+    var employees = (List<Employee>)ViewBag.Employees;
+    var myToday = (Attendance?)ViewBag.MyToday;
+    bool isStaffOrManager = (bool)ViewBag.IsStaffOrManager;
+    int currentPage = (int)ViewBag.Page;
+    int totalPages = (int)ViewBag.TotalPages;
+}
+
+<div class="page-hero-banner" style="background-image: url('/images/dashboard-banner.jpg');">
+    <div class="page-hero-content">
+        <h1 style="font-size: 26px; font-weight: 600; margin-bottom: 6px; color: #ffffff !important;">
+            Attendance & Timekeeping
+        </h1>
+        <p style="color: #e2e8f0 !important; margin: 0; font-size: 14px;">
+            Real-time biometric & digital time clock, shift attendance tracking, working hour computations, and log records.
+        </p>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<!-- TOP CARDS: TODAY'S STATS & PERSONAL CLOCK IN/OUT -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 24px;">
+
+    <!-- CLOCK IN / CLOCK OUT QUICK CARD -->
+    <div class="content-card" style="padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <h2 style="font-size: 15px; font-weight: 600; margin: 0; color: var(--text-primary);">Today's Time Clock</h2>
+                <span style="font-size: 12px; color: var(--text-secondary);">@DateTime.Today.ToString("dd MMM yyyy")</span>
+            </div>
+            <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">
+                @if (myToday == null)
+                {
+                    <span>You have not clocked in yet today.</span>
+                }
+                else
+                {
+                    <span>
+                        In: <strong>@(myToday.CheckInTime?.ToString(@"hh\:mm") ?? "-")</strong> | 
+                        Out: <strong>@(myToday.CheckOutTime?.ToString(@"hh\:mm") ?? "Pending")</strong> | 
+                        Status: <span class="status-badge status-success">@myToday.AttendanceStatus</span>
+                    </span>
+                }
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+            <form asp-controller="Attendance" asp-action="ClockIn" method="post" style="flex: 1;">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-primary" style="width: 100%;" disabled="@(myToday != null && myToday.CheckInTime != null ? "disabled" : null)">
+                    Clock In
+                </button>
+            </form>
+
+            <form asp-controller="Attendance" asp-action="ClockOut" method="post" style="flex: 1;">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-secondary" style="width: 100%;" disabled="@(myToday == null || myToday.CheckInTime == null || myToday.CheckOutTime != null ? "disabled" : null)">
+                    Clock Out
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- TODAY'S WORKFORCE ATTENDANCE SUMMARY -->
+    <div class="content-card" style="padding: 20px;">
+        <h2 style="font-size: 15px; font-weight: 600; margin: 0 0 16px; color: var(--text-primary);">Organization Today Summary</h2>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; text-align: center;">
+            <div style="padding: 10px; background: var(--success-bg); border-radius: 8px;">
+                <div style="font-size: 20px; font-weight: 700; color: var(--success);">@summary.TotalPresent</div>
+                <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: 500;">Present</div>
+            </div>
+            <div style="padding: 10px; background: var(--danger-bg); border-radius: 8px;">
+                <div style="font-size: 20px; font-weight: 700; color: var(--danger);">@summary.TotalAbsent</div>
+                <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: 500;">Absent</div>
+            </div>
+            <div style="padding: 10px; background: var(--warning-bg); border-radius: 8px;">
+                <div style="font-size: 20px; font-weight: 700; color: var(--warning);">@summary.TotalOnLeave</div>
+                <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: 500;">On Leave</div>
+            </div>
+            <div style="padding: 10px; background: var(--info-bg); border-radius: 8px;">
+                <div style="font-size: 20px; font-weight: 700; color: var(--info);">@summary.TotalHalfDay</div>
+                <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: 500;">Half Day</div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- MANUAL ATTENDANCE RECORDING (HR / ADMIN ONLY) -->
+@if (User.IsInRole("Admin") || User.IsInRole("HR Manager"))
+{
+    <div class="content-card" style="margin-bottom: 24px;">
+        <div class="card-header" style="padding: 14px 20px; border-bottom: 1px solid var(--seps-border);">
+            <h2 style="font-size: 15px; font-weight: 600; margin: 0;">HR Manual Attendance Entry / Adjustment</h2>
+        </div>
+        <form asp-controller="Attendance" asp-action="Record" method="post" style="padding: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) auto; gap: 12px; align-items: flex-end;">
+            @Html.AntiForgeryToken()
+
+            <div class="form-group">
+                <label for="employeeId">Employee *</label>
+                <select name="employeeId" id="employeeId" class="form-control" required>
+                    <option value="">-- Select Employee --</option>
+                    @foreach (var emp in employees)
+                    {
+                        <option value="@emp.EmployeeId">@emp.FirstName @emp.LastName (#@emp.EmployeeId)</option>
+                    }
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="attendanceDate">Date *</label>
+                <input type="date" name="attendanceDate" id="attendanceDate" class="form-control" value="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+            </div>
+
+            <div class="form-group">
+                <label for="checkIn">Clock In</label>
+                <input type="time" name="checkIn" id="checkIn" class="form-control" value="09:00" />
+            </div>
+
+            <div class="form-group">
+                <label for="checkOut">Clock Out</label>
+                <input type="time" name="checkOut" id="checkOut" class="form-control" value="18:00" />
+            </div>
+
+            <div class="form-group">
+                <label for="status">Status *</label>
+                <select name="status" id="status" class="form-control">
+                    <option value="Present">Present</option>
+                    <option value="Half Day">Half Day</option>
+                    <option value="Absent">Absent</option>
+                    <option value="Leave">Leave</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="margin-bottom: 2px;">
+                Save Record
+            </button>
+        </form>
+    </div>
+}
+
+<!-- FILTER BAR & RECORDS TABLE -->
+<div class="content-card">
+    <div class="card-header">
+        <div>
+            <h2>Attendance Records Log</h2>
+            <p>Showing @Model.Count() records (Total logged: @ViewBag.TotalCount)</p>
+        </div>
+    </div>
+
+    <!-- FILTER BAR -->
+    <form asp-controller="Attendance" asp-action="Index" method="get" class="filter-bar">
+        <div class="form-group">
+            <label for="dateStr">Date</label>
+            <input type="date" id="dateStr" name="dateStr" value="@ViewBag.DateStr" class="form-control" />
+        </div>
+
+        @if (isStaffOrManager)
+        {
+            <div class="form-group">
+                <label for="departmentId">Department</label>
+                <select id="departmentId" name="departmentId" class="form-control filter-select">
+                    <option value="">All Departments</option>
+                    @foreach (var dept in departments)
+                    {
+                        <option value="@dept.DepartmentId" selected="@(ViewBag.DepartmentId == dept.DepartmentId ? "selected" : null)">
+                            @dept.DepartmentName
+                        </option>
+                    }
+                </select>
+            </div>
+        }
+
+        <div class="form-group">
+            <label for="statusFilter">Status</label>
+            <select id="statusFilter" name="status" class="form-control filter-select">
+                <option value="">All Statuses</option>
+                <option value="Present" selected="@(ViewBag.Status == "Present" ? "selected" : null)">Present</option>
+                <option value="Half Day" selected="@(ViewBag.Status == "Half Day" ? "selected" : null)">Half Day</option>
+                <option value="Absent" selected="@(ViewBag.Status == "Absent" ? "selected" : null)">Absent</option>
+                <option value="Leave" selected="@(ViewBag.Status == "Leave" ? "selected" : null)">Leave</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="margin-bottom: 2px;">Filter</button>
+        <a asp-controller="Attendance" asp-action="Index" class="btn btn-secondary" style="margin-bottom: 2px;">Reset</a>
+    </form>
+
+    <!-- DATA TABLE -->
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Employee</th>
+                    <th>Department</th>
+                    <th>Check In</th>
+                    <th>Check Out</th>
+                    <th>Working Hours</th>
+                    <th>Overtime</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Any())
+                {
+                    foreach (var att in Model)
+                    {
+                        <tr>
+                            <td><strong>@att.AttendanceDate.ToString("dd MMM yyyy")</strong></td>
+                            <td>
+                                <a asp-controller="Employees" asp-action="Details" asp-route-id="@att.EmployeeId" style="font-weight: 500; color: var(--seps-primary); text-decoration: none;">
+                                    @(att.Employee?.FirstName) @(att.Employee?.LastName)
+                                </a>
+                            </td>
+                            <td>@(att.Employee?.Department?.DepartmentName ?? "N/A")</td>
+                            <td>@(att.CheckInTime?.ToString(@"hh\:mm") ?? "-")</td>
+                            <td>@(att.CheckOutTime?.ToString(@"hh\:mm") ?? "-")</td>
+                            <td><strong>@(att.WorkingHours?.ToString("0.0") ?? "-") hrs</strong></td>
+                            <td>@(att.OvertimeHours?.ToString("0.0") ?? "-") hrs</td>
+                            <td>
+                                @if (att.AttendanceStatus == "Present")
+                                {
+                                    <span class="status-badge status-success">Present</span>
+                                }
+                                else if (att.AttendanceStatus == "Half Day")
+                                {
+                                    <span class="status-badge status-warning">Half Day</span>
+                                }
+                                else if (att.AttendanceStatus == "Leave")
+                                {
+                                    <span class="status-badge status-neutral">Leave</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge status-danger">Absent</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="8">
+                            <div class="empty-state">
+                                <h3>No attendance records found</h3>
+                                <p>No records match your selected filter criteria.</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- PAGINATION -->
+    @if (totalPages > 1)
+    {
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-top: 1px solid var(--border-color);">
+            <div style="font-size: 13px; color: var(--text-secondary);">
+                Page @currentPage of @totalPages
+            </div>
+            <div style="display: flex; gap: 6px;">
+                @if (currentPage > 1)
+                {
+                    <a asp-controller="Attendance" asp-action="Index" 
+                       asp-route-page="@(currentPage - 1)" 
+                       asp-route-dateStr="@ViewBag.DateStr" 
+                       asp-route-departmentId="@ViewBag.DepartmentId" 
+                       asp-route-status="@ViewBag.Status" 
+                       class="btn btn-secondary btn-sm">&larr; Previous</a>
+                }
+                @if (currentPage < totalPages)
+                {
+                    <a asp-controller="Attendance" asp-action="Index" 
+                       asp-route-page="@(currentPage + 1)" 
+                       asp-route-dateStr="@ViewBag.DateStr" 
+                       asp-route-departmentId="@ViewBag.DepartmentId" 
+                       asp-route-status="@ViewBag.Status" 
+                       class="btn btn-secondary btn-sm">Next &rarr;</a>
+                }
+            </div>
+        </div>
+    }
+</div>

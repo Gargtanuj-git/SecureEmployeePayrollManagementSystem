@@ -1,0 +1,119 @@
+@model IEnumerable<SecureEmployeePayrollSystem.Models.Designation>
+
+@{
+    ViewData["Title"] = "Designations";
+    bool canManage = User.IsInRole("Admin") || User.IsInRole("HR Manager");
+}
+
+<div class="page-header">
+    <div>
+        <h1>Job Designations & Roles</h1>
+        <p>Define workforce job titles, corporate hierarchy levels, and job descriptions.</p>
+    </div>
+
+    @if (canManage)
+    {
+        <div class="page-header-actions">
+            <a asp-controller="Designations" asp-action="Create" class="btn btn-primary">
+                + Add Designation
+            </a>
+        </div>
+    }
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<div class="content-card">
+    <div class="card-header">
+        <div>
+            <h2>Designation Directory</h2>
+            <p>@Model.Count() designation role(s) configured in system</p>
+        </div>
+    </div>
+
+    <!-- SEARCH -->
+    <form asp-controller="Designations" asp-action="Index" method="get" class="filter-bar">
+        <div class="form-group" style="flex: 2;">
+            <label for="search">Search</label>
+            <input type="text" id="search" name="search" value="@ViewBag.Search" class="form-control" placeholder="Search by role title, job level, or description..." />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Search</button>
+        <a asp-controller="Designations" asp-action="Index" class="btn btn-secondary">Clear</a>
+    </form>
+
+    <!-- TABLE -->
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Designation Title</th>
+                    <th>Job Level</th>
+                    <th>Description</th>
+                    <th>Employees Assigned</th>
+                    <th style="text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Any())
+                {
+                    foreach (var desig in Model)
+                    {
+                        <tr>
+                            <td><strong>#@desig.DesignationId</strong></td>
+                            <td>
+                                <a asp-controller="Designations" asp-action="Details" asp-route-id="@desig.DesignationId" style="font-weight: 500; color: var(--primary); text-decoration: none;">
+                                    @desig.DesignationName
+                                </a>
+                            </td>
+                            <td>
+                                <span class="status-badge status-neutral">@desig.JobLevel</span>
+                            </td>
+                            <td>@(desig.Description ?? "No description provided.")</td>
+                            <td>
+                                <span class="status-badge status-neutral">
+                                    @(desig.Employees?.Count ?? 0) member(s)
+                                </span>
+                            </td>
+                            <td style="text-align: right; white-space: nowrap;">
+                                <a asp-controller="Designations" asp-action="Details" asp-route-id="@desig.DesignationId" class="btn btn-secondary btn-sm">
+                                    View
+                                </a>
+
+                                @if (canManage)
+                                {
+                                    <a asp-controller="Designations" asp-action="Edit" asp-route-id="@desig.DesignationId" class="btn btn-secondary btn-sm">
+                                        Edit
+                                    </a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6">
+                            <div class="empty-state">
+                                <h3>No designations found</h3>
+                                <p>No designation records matching your query.</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
