@@ -6,7 +6,7 @@ using SecureEmployeePayrollSystem.Services;
 
 namespace SecureEmployeePayrollSystem.Controllers;
 
-[Authorize]
+[Authorize(Policy = "StaffOrAdmin")]
 public class SalaryStructureController : Controller
 {
     private readonly SalaryStructureService _salaryStructureService;

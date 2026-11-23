@@ -8,7 +8,7 @@ using SecureEmployeePayrollSystem.Services;
 
 namespace SecureEmployeePayrollSystem.Controllers;
 
-[Authorize]
+[Authorize(Policy = "PayrollOrAdmin")]
 public class PaymentsController : Controller
 {
     private readonly PaymentService _paymentService;
