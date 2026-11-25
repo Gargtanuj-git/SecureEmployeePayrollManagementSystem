@@ -649,6 +649,9 @@ public class UserManagementService
                 _context.Employees.Add(newEmp);
                 await _context.SaveChangesAsync();
                 targetEmployeeId = newEmp.EmployeeId;
+
+                // Automatically initialize baseline Payroll slip so Admin-created employees appear in Payroll & Disbursements
+                await EmployeeService.InitializeBaselinePayrollSlipAsync(_context, newEmp, _logger);
             }
 
             // 4. Create UserAccount

@@ -143,26 +143,36 @@
         });
     };
 
-    // 3. USER MENU DROPDOWN
-    const initUserMenu = () => {
-        const userMenuBtn = document.getElementById('userMenuButton');
-        const userDropdown = document.getElementById('userMenuDropdown');
+    // 3. USER MENU, HELP & NOTIFICATION DROPDOWNS
+    const initHeaderDropdown = (btnId, dropdownId) => {
+        const btn = document.getElementById(btnId);
+        const dropdown = document.getElementById(dropdownId);
 
-        if (userMenuBtn && userDropdown) {
-            userMenuBtn.addEventListener('click', (e) => {
+        if (btn && dropdown) {
+            btn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                const isExpanded = userMenuBtn.getAttribute('aria-expanded') === 'true';
-                userMenuBtn.setAttribute('aria-expanded', !isExpanded);
-                userDropdown.classList.toggle('open');
+                // Close other open header dropdowns
+                document.querySelectorAll('.user-menu-dropdown.open').forEach(el => {
+                    if (el !== dropdown) el.classList.remove('open');
+                });
+                const isExpanded = btn.getAttribute('aria-expanded') === 'true';
+                btn.setAttribute('aria-expanded', !isExpanded);
+                dropdown.classList.toggle('open');
             });
 
             document.addEventListener('click', (e) => {
-                if (!userMenuBtn.contains(e.target) && !userDropdown.contains(e.target)) {
-                    userMenuBtn.setAttribute('aria-expanded', 'false');
-                    userDropdown.classList.remove('open');
+                if (!btn.contains(e.target) && !dropdown.contains(e.target)) {
+                    btn.setAttribute('aria-expanded', 'false');
+                    dropdown.classList.remove('open');
                 }
             });
         }
+    };
+
+    const initUserMenu = () => {
+        initHeaderDropdown('userMenuButton', 'userMenuDropdown');
+        initHeaderDropdown('helpMenuButton', 'helpMenuDropdown');
+        initHeaderDropdown('notificationMenuButton', 'notificationMenuDropdown');
     };
 
     // 4. GLOBAL SEARCH NAVIGATION

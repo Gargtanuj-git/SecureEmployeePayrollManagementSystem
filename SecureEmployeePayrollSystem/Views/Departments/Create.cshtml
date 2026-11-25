@@ -1,4 +1,4 @@
-﻿@model SecureEmployeePayrollSystem.Models.Department
+@model SecureEmployeePayrollSystem.Models.Department
 
 @{
     ViewData["Title"] = "Add Department";
@@ -73,6 +73,25 @@
                        placeholder="e.g. Delhi" />
 
                 <span asp-validation-for="Location"
+                      class="field-validation">
+                </span>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label asp-for="DepartmentStatus">
+                    Status
+                </label>
+
+                <select asp-for="DepartmentStatus"
+                        class="form-control">
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                </select>
+
+                <span asp-validation-for="DepartmentStatus"
                       class="field-validation">
                 </span>
 

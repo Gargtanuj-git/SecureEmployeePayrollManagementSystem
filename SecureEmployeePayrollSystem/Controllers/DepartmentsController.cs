@@ -68,6 +68,12 @@ public class DepartmentsController : Controller
     [Authorize(Policy = "HROrAdmin")]
     public async Task<IActionResult> Create(Department model)
     {
+        if (string.IsNullOrWhiteSpace(model.DepartmentStatus))
+        {
+            model.DepartmentStatus = "Active";
+            ModelState.Remove(nameof(model.DepartmentStatus));
+        }
+
         if (string.IsNullOrWhiteSpace(model.DepartmentName))
         {
             ModelState.AddModelError(nameof(model.DepartmentName), "Department Name is required.");
