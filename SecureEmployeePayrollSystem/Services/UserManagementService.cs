@@ -97,7 +97,11 @@ public class UserManagementService
             if (user == null) return (false, "User not found.");
 
             user.AccountStatus = "Active";
+            user.EmailConfirmed = true;
+            user.EmailVerificationTokenHash = null;
+            user.EmailVerificationTokenExpiry = null;
             user.FailedLoginAttempts = 0;
+            user.LockoutEndUtc = null;
 
             await _context.SaveChangesAsync();
 
@@ -129,6 +133,9 @@ public class UserManagementService
             user.AccountStatus = oldStatus == "Active" ? "Inactive" : "Active";
             if (user.AccountStatus == "Active")
             {
+                user.EmailConfirmed = true;
+                user.EmailVerificationTokenHash = null;
+                user.EmailVerificationTokenExpiry = null;
                 user.FailedLoginAttempts = 0;
                 user.LockoutEndUtc = null;
             }
@@ -248,7 +255,8 @@ public class UserManagementService
         string email,
         string username,
         string password,
-        string? ipAddress)
+        string? ipAddress,
+        string? baseUrl = null)
     {
         try
         {
@@ -310,8 +318,8 @@ public class UserManagementService
             await _context.SaveChangesAsync();
 
             // Step 7: Send verification email if email sender is available
-            string baseUrl = _config?["Application:BaseUrl"] ?? "http://localhost:5039";
-            string verificationUrl = $"{baseUrl}/Account/VerifyEmail?userId={user.UserId}&token={rawToken}";
+            string effectiveBaseUrl = (!string.IsNullOrWhiteSpace(baseUrl) ? baseUrl : (_config?["Application:BaseUrl"] ?? "http://localhost:5039")).TrimEnd('/');
+            string verificationUrl = $"{effectiveBaseUrl}/Account/VerifyEmail?userId={user.UserId}&token={rawToken}";
             string emailSubject = "Verify Your SEPS Account";
             string emailBody = EmailTemplateService.BuildVerificationEmail(user.Username, verificationUrl, 24);
 
@@ -406,7 +414,7 @@ public class UserManagementService
         }
     }
 
-    public async Task<(bool Success, string Message, string? RawToken, UserAccount? User)> GeneratePasswordResetTokenAsync(string usernameOrEmail, string? ipAddress)
+    public async Task<(bool Success, string Message, string? RawToken, UserAccount? User)> GeneratePasswordResetTokenAsync(string usernameOrEmail, string? ipAddress, string? baseUrl = null)
     {
         try
         {
@@ -441,8 +449,8 @@ public class UserManagementService
             user.PasswordResetTokenExpiry = DateTime.UtcNow.AddMinutes(15);
             await _context.SaveChangesAsync();
 
-            string baseUrl = _config?["Application:BaseUrl"] ?? "http://localhost:5039";
-            string resetUrl = $"{baseUrl}/Account/ResetPassword?token={rawToken}&username={Uri.EscapeDataString(user.Username)}";
+            string effectiveBaseUrl = (!string.IsNullOrWhiteSpace(baseUrl) ? baseUrl : (_config?["Application:BaseUrl"] ?? "http://localhost:5039")).TrimEnd('/');
+            string resetUrl = $"{effectiveBaseUrl}/Account/ResetPassword?token={rawToken}&username={Uri.EscapeDataString(user.Username)}";
             string emailSubject = "Reset Your SEPS Password";
             string emailBody = EmailTemplateService.BuildPasswordResetEmail(user.Username, resetUrl, 15);
 
@@ -523,7 +531,19 @@ public class UserManagementService
             user.FailedLoginAttempts = 0;
             user.LockoutEndUtc = null;
 
-            // Note: Preserve administrative locks if marked Inactive or Locked
+            // If the account was Inactive solely pending initial email verification (not administratively Locked),
+            // completing a verified email password reset confirms email ownership and activates the account.
+            if (!user.EmailConfirmed &&
+                string.Equals(user.AccountStatus, "Inactive", StringComparison.OrdinalIgnoreCase) &&
+                !string.IsNullOrWhiteSpace(user.EmailVerificationTokenHash))
+            {
+                user.EmailConfirmed = true;
+                user.AccountStatus = "Active";
+                user.EmailVerificationTokenHash = null;
+                user.EmailVerificationTokenExpiry = null;
+            }
+
+            // Note: Preserve administrative locks if marked Inactive (after confirmation) or Locked
             await _context.SaveChangesAsync();
 
             // Send password-changed confirmation notification
@@ -632,11 +652,13 @@ public class UserManagementService
             }
 
             // 4. Create UserAccount
+            bool isActive = model.AccountStatus != "Inactive";
             var user = new UserAccount
             {
                 Username = model.Username.Trim(),
                 EmployeeId = targetEmployeeId,
-                AccountStatus = model.AccountStatus == "Inactive" ? "Inactive" : "Active",
+                AccountStatus = isActive ? "Active" : "Inactive",
+                EmailConfirmed = isActive,
                 FailedLoginAttempts = 0,
                 CreatedAt = DateTime.UtcNow
             };

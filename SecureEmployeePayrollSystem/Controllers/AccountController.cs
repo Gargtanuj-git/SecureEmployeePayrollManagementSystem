@@ -567,13 +567,15 @@ public class AccountController : Controller
         }
 
         string? clientIp = HttpContext.Connection.RemoteIpAddress?.ToString();
+        string baseUrl = $"{Request.Scheme}://{Request.Host}";
 
         var result = await _userService.RegisterEmployeeAccountAsync(
             model.EmployeeId,
             model.Email,
             model.Username,
             model.Password,
-            clientIp);
+            clientIp,
+            baseUrl);
 
         if (!result.Success)
         {
@@ -642,7 +644,8 @@ public class AccountController : Controller
         }
 
         string? clientIp = HttpContext.Connection.RemoteIpAddress?.ToString();
-        var result = await _userService.GeneratePasswordResetTokenAsync(model.UsernameOrEmail, clientIp);
+        string baseUrl = $"{Request.Scheme}://{Request.Host}";
+        var result = await _userService.GeneratePasswordResetTokenAsync(model.UsernameOrEmail, clientIp, baseUrl);
 
         ViewBag.Message = result.Message;
         return View(model);
